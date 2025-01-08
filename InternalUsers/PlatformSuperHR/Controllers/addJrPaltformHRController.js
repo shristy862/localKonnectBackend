@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import User from '../../../userModal/Modal/modal.js';
+import User from '../../../models/user.js';
 
 export const addPlatformJrHr = async (req, res) => {
     try {

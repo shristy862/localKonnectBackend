@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { sendOtp, createAccount } from '../Controllers/userController.js';
+import { sendOtp, createAccount } from '../controllers/userController.js';
 const router = Router();
 
 // Route for sending OTP for verifing email

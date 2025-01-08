@@ -2,7 +2,7 @@ import express from 'express';
 import { loginPlatformSuperHR } from '../Controllers/LoginController.js';
 import { platformSuperHRDashboard } from '../Controllers/dashboardController.js'
 import { addPlatformJrHr } from '../Controllers/addJrPaltformHRController.js';
-import { authenticateToken } from '../../../Middleware/verifyToken.js';
+import { authenticateToken } from '../../../middlewares/verifyToken.js';
 
 const router = express.Router();
 

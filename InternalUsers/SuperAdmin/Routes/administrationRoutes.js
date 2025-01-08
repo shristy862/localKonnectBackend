@@ -1,8 +1,8 @@
 import express from 'express';
 import { createSuperAdmin } from '../Controllers/createSuperAdmin.js';
-import { verifySecurityCode } from '../../../Middleware/verifySecurityCode.js';
+import { verifySecurityCode } from '../../../middlewares/verifySecurityCode.js';
 import { loginSuperAdmin } from '../Controllers/loginController.js';
-import { authenticateToken } from '../../../Middleware/verifyToken.js';
+import { authenticateToken } from '../../../middlewares/verifyToken.js';
 import { superAdminDashboard } from '../Controllers/dashboardController.js';
 import { addHR } from '../Controllers/addplatformHRController.js';
 import { addAccountant } from '../Controllers/addAccountant.js';

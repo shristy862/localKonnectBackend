@@ -1,8 +1,8 @@
 import bcrypt from 'bcryptjs';
-import TemporaryUser from '../Modal/temporaryUserModal.js'; 
-import User from '../Modal/modal.js'; 
-import { sendEmail } from '../../Services/emailService.js';
-import { verifyOtp } from '../../Services/otpService.js';
+import TemporaryUser from '../models/temporaryUserModal.js'; 
+import User from '../models/user.js'; 
+import { sendEmail } from '../Services/emailService.js';
+import { verifyOtp } from '../Services/otpService.js';
 
 export const sendOtp = async (req, res) => {
     const { email, password, userType } = req.body;

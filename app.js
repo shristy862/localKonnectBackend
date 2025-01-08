@@ -1,10 +1,10 @@
 dotenv.config();
 import express from 'express';
 import dotenv from 'dotenv';
-import connectDB from './connectDB.js';
+import connectDB from './config/connectDB.js';
 
 // ExternalUsersRoutes
-import userRoutes from './userModal/routes/usersSignup.js';
+import userRoutes from './routes/usersRoutes.js';
 import candidateRoutes from './ExternalUsers/Candidates/Routes/candidateRoute.js';
 import companyRoutes from './ExternalUsers/CompanyHr/Routes/companyRoute.js';
 import hiringManagerRoutes from './ExternalUsers/Hiring Manager/Routes/hiringMgrRoutes.js';

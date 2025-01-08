@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import User from '../../../userModal/Modal/modal.js';
+import User from '../../../models/user.js';
 
 export const loginPlatformJrHr = async (req, res) => {
     try {
