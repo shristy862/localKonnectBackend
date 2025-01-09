@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import User from '../models/user.js';
 import TemporaryUser from '../models/temporaryUserModal.js';
-import { sendEmail } from '../services/emailService.js';
+import  sendEmail  from '../services/emailService.js';
 import { generateOtp } from '../services/generateOTP.js';
 import { ROLES } from '../models/role.js';
 
