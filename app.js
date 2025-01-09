@@ -2,7 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import connectDB from './config/connectDB.js';
 import adminRoutes from './superAdmin/Routes/adminRoutes.js';
-import userRoutes from './userRoutes/usersRoutes.js'
+import userRoutes from './routes/usersRoutes.js'
 dotenv.config();
 
 const app = express();
