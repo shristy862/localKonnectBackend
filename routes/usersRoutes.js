@@ -1,11 +1,13 @@
+
 import { Router } from 'express';
 import { sendOtp, createAccount } from '../controllers/userController.js';
+
 const router = Router();
 
-// Route for sending OTP for verifing email
+// Route for sending OTP
 router.post('/signup', sendOtp);
 
-// Route for creating a user's account after OTP verification
+// Route for verifying OTP and creating an account
 router.post('/create-account', createAccount);
 
 export default router;
