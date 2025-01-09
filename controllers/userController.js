@@ -1,17 +1,23 @@
 import bcrypt from 'bcryptjs';
-import TemporaryUser from '../models/temporaryUserModal.js'; 
-import User from '../models/user.js'; 
+import User from '../models/user.js';
+import TemporaryUser from '../models/temporaryUserModal.js';
 import { sendEmail } from '../services/emailService.js';
 import { generateOtp } from '../services/generateOTP.js';
+import { ROLES } from '../models/role.js';
 
-// Send OTP Controller
-export const sendOtp = async (req, res) => {
-    const { email, password, userType } = req.body;
+// Send OTP for creating a new user (Accountant)
+export const sendOtpForNewUser = async (req, res) => {
+    const { email, userType } = req.body;
 
     try {
-        // Check if the temporary user exists
-        const existingTempUser = await TemporaryUser.findOne({ email });
-        if (existingTempUser) {
+        // Check if the userType is valid
+        if (!Object.values(ROLES).includes(userType)) {
+            return res.status(400).json({ message: 'Invalid userType.' });
+        }
+
+        // Check if the user already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
             return res.status(400).json({ message: 'User already exists. Please login.' });
         }
 
@@ -19,13 +25,9 @@ export const sendOtp = async (req, res) => {
         const otp = generateOtp();
         const otpExpiry = Date.now() + 5 * 60 * 1000; // expiry for 5 minutes
 
-        // Hash the password
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Save Temporary User
+        // Save the temporary user data with OTP
         const temporaryUser = new TemporaryUser({
             email,
-            password: hashedPassword,
             otp,
             otpExpiry,
             userType,
@@ -33,50 +35,57 @@ export const sendOtp = async (req, res) => {
 
         await temporaryUser.save();
 
-        // Send OTP to user's email
-        const subject = 'Requested OTP';
-        const message = `Hello, your OTP for verification is ${otp}`;
+        // Send OTP to the email
+        const subject = 'Requested OTP for User Creation';
+        const message = `Hello, your OTP for creating a new account is ${otp}`;
         await sendEmail(email, subject, message);
 
-        res.status(201).json({ message: 'OTP sent to your email. Please verify to complete signup.' });
+        res.status(201).json({ message: 'OTP sent to the email. Please verify to complete signup.' });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        // Send the actual error message in the response
+        res.status(500).json({ message: `Server error: ${error.message || error}` });
     }
 };
 
-// Create Account Controller
-export const createAccount = async (req, res) => {
-    const { email, otp } = req.body;
+// Verify OTP and complete the user signup
+export const verifyOtpForNewUser = async (req, res) => {
+    const { email, otp, password } = req.body;
 
     try {
-        // Retrieve Temporary User
+        // Retrieve the temporary user data
         const temporaryUser = await TemporaryUser.findOne({ email });
         if (!temporaryUser) {
             return res.status(400).json({ message: 'No temporary user found for this email.' });
         }
 
-        // Verify OTP
+        // Verify OTP and expiry
         if (temporaryUser.otp !== parseInt(otp) || temporaryUser.otpExpiry < Date.now()) {
             return res.status(400).json({ message: 'Invalid or expired OTP' });
         }
 
-        // Create a New User
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Create a new user
         const newUser = new User({
             email,
-            password: temporaryUser.password, // Pre-hashed password
-            isVerified: true,
+            password: hashedPassword,
+            rawPassword: password,
             userType: temporaryUser.userType,
+            isVerified: true,
+            createdBy: req.user._id, // SuperAdmin's ID (assumed the SuperAdmin is logged in)
         });
 
         await newUser.save();
 
-        // Remove Temporary User Record
+        // Remove the temporary user record
         await TemporaryUser.deleteOne({ email });
 
-        res.status(201).json({ message: 'Account created successfully!' });
+        res.status(201).json({ message: 'User created successfully!' });
     } catch (error) {
-        console.error('Error in createAccount:', error);
-        res.status(500).json({ message: 'Server error' });
+        console.error(error);
+        // Send the actual error message in the response
+        res.status(500).json({ message: `Server error: ${error.message || error}` });
     }
 };

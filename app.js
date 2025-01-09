@@ -1,8 +1,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import userRoutes from './routes/usersRoutes.js';
 import connectDB from './config/connectDB.js';
 import adminRoutes from './superAdmin/Routes/adminRoutes.js';
+import userRoutes from './userRoutes/usersRoutes.js'
 dotenv.config();
 
 const app = express();
@@ -17,9 +17,8 @@ app.get('/', (req, res) => {
   res.send('Hello, Elastic Beanstalk!');
 });
 
-app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
-
+app.use('/api/users/auth', userRoutes);
 // 404 Error Handler
 app.use((req, res, next) => {
   res.status(404).json({ message: 'Route not found' });
