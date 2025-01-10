@@ -3,13 +3,9 @@ import TemporaryUser from '../models/temporaryUserModal.js';
 import User from '../models/user.js';
 
 export const createPassword = async (req, res) => {
-  const { email, password, confirmPassword } = req.body;
+  const { email, password} = req.body;
 
   try {
-    // Check if passwords match
-    if (password !== confirmPassword) {
-      return res.status(400).json({ message: 'Passwords do not match' });
-    }
 
     const temporaryUser = await TemporaryUser.findOne({ email });
 
