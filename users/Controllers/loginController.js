@@ -20,18 +20,18 @@ export const loginUsers = async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: user._id, email: user.email, role: user.role }, 
+      { id: user._id, email: user.email, role: user.userType }, 
       process.env.JWT_SECRET, 
       { expiresIn: '1h' } // Token expiry time
     );
 
     return res.status(200).json({
-      message: 'Login successful',
+      message: `Login successful! Welcome ${user.userType}`,
       token,
       user: {
         id: user._id,
         email: user.email,
-        role: user.role,
+        role: user.userType,
       },
     });
   } catch (error) {
