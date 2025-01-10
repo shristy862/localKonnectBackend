@@ -1,6 +1,6 @@
 // routes/adminRoutes.js
 import { Router } from 'express';
-import { superAdminLogin } from '../Controllers/loginController.js';
+import { loginUsers } from '../Controllers/loginController.js';
 import { superAdminDashboard } from '../Controllers/dashboardControllers.js';
 import { authenticateToken } from '../../middlewares/verifyToken.js';
 import { sendOtpForNewUser, verifyOtpForNewUser } from '../../controllers/userController.js';
@@ -8,7 +8,7 @@ import { sendOtpForNewUser, verifyOtpForNewUser } from '../../controllers/userCo
 const router = Router();
 
 // Super Admin Login Route
-router.post('/login', superAdminLogin);
+router.post('/login', loginUsers);
 // Route for Super Admin Dashboard
 router.get('/dashboard', authenticateToken, superAdminDashboard);
 

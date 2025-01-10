@@ -1,4 +1,4 @@
-import User from  '../models/user.js'
+import User from  '../users/models/user.js'
 
 export const getDashboardData = async (req, res) => {
     try {

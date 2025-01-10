@@ -1,9 +1,9 @@
 import bcrypt from 'bcryptjs';
-import User from '../models/user.js';
-import TemporaryUser from '../models/temporaryUserModal.js';
-import  {sendEmail}  from '../middlewares/emailservice.js';
-import { generateOtp } from '../middlewares/generateOTP.js';
-import { ROLES } from '../models/role.js';
+import User from '../users/models/user.js';
+import TemporaryUser from '../users/models/temporaryUserModal.js';
+import  {sendEmail}  from '../utils/emailservice.js';
+import { generateOtp } from '../utils/generateOTP.js';
+import { ROLES } from '../utils/role.js';
 
 // Send OTP for creating a new user (Accountant)
 export const sendOtpForNewUser = async (req, res) => {

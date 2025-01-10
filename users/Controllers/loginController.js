@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-export const superAdminLogin = (req, res) => {
+export const loginUsers = (req, res) => {
     const { email, password, userType } = req.body;
 
     // Hardcoded credentials for Super Admin

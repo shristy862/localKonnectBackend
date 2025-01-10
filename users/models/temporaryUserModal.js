@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { ROLES } from './role.js'; 
+import { ROLES } from '../../utils/role.js'; 
 const temporaryUserSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     otp: { type: Number, required: true },
