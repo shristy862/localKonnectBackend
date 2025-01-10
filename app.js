@@ -1,8 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import connectDB from './config/connectDB.js';
-import adminRoutes from './users/Routes/adminRoutes.js';
-import userRoutes from './routes/usersRoutes.js'
+import userRoutes from './users/Routes/userRoutes.js'
 dotenv.config();
 
 const app = express();
@@ -14,10 +13,9 @@ app.use(express.json());
 connectDB();
 
 app.get('/', (req, res) => {
-  res.send('Hello, Elastic Beanstalk!');
+  res.send('Hello, Welcome to Local Knonnect App!');
 });
 
-app.use('/api/admin', adminRoutes);
 app.use('/api/users/auth', userRoutes);
 // 404 Error Handler
 app.use((req, res, next) => {

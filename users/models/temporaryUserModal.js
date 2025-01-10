@@ -1,10 +1,30 @@
 import mongoose from 'mongoose';
-import { ROLES } from '../../utils/role.js'; 
+
 const temporaryUserSchema = new mongoose.Schema({
-    email: { type: String, required: true, unique: true },
-    otp: { type: Number, required: true },
-    otpExpiry: { type: Date, required: true },
-    userType: { type: String, required: true, enum: Object.values(ROLES) },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  otp: {
+    type: String,
+    required: true, 
+    default: null, 
+  },
+  otpExpiry: {
+    type: Date,
+    required: true,
+  },
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
+  userType: {
+    type: String,
+    required: true,
+  },
 });
 
-export default mongoose.model('TemporaryUser', temporaryUserSchema);
+const TemporaryUser = mongoose.model('TemporaryUser', temporaryUserSchema);
+
+export default TemporaryUser;
