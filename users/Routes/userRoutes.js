@@ -1,7 +1,7 @@
 // routes/adminRoutes.js
 import { Router } from 'express';
 import { loginUsers } from '../Controllers/loginController.js';
-import { superAdminDashboard } from '../Controllers/dashboardControllers.js';
+import { userDashboard } from '../Controllers/dashboardControllers.js';
 import { authenticateToken } from '../../middlewares/verifyToken.js';
 import { sendOtpForNewUser, verifyOtpForNewUser } from '../../controllers/userController.js';
 import { signup } from '../Controllers/signupController.js';
@@ -19,8 +19,7 @@ router.post('/createpassword', createPassword);
 // Super Admin Login Route
 router.post('/login', loginUsers);
 // Route for Super Admin Dashboard
-router.get('/dashboard', authenticateToken, superAdminDashboard);
-
+router.get('/dashboard', authenticateToken, userDashboard);
 // Route for SuperAdmin to send OTP for creating a new user (Accountant)
 router.post('/user/send-otp', authenticateToken, sendOtpForNewUser);
 

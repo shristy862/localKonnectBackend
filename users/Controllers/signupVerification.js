@@ -14,19 +14,7 @@ export const verifyOtp = async (req, res) => {
       return res.status(400).json({ message: 'Invalid OTP' });
     }
 
-    // Check if the OTP has expired
-    if (temporaryUser.otpExpiry < Date.now()) {
-      temporaryUser.otp = null; // Remove OTP
-      temporaryUser.isVerified = false; 
-
-      // Save the updated temporary user document
-      await temporaryUser.save();
-
-      return res.status(400).json({
-        message: 'OTP has expired. Please request a new one.',
-      });
-    }
-
+    // Mark the user as verified
     temporaryUser.isVerified = true;
 
     await temporaryUser.save();
