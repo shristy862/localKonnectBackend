@@ -1,36 +1,51 @@
-import AWS from 'aws-sdk';
 import multer from 'multer';
-import multerS3 from 'multer-s3';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import dotenv from 'dotenv';
 
 // Load environment variables
 dotenv.config();
 
-
-// Configure AWS S3 credentials and region
-AWS.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+// Configure AWS S3 Client
+const s3Client = new S3Client({
   region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
 });
-
-const s3 = new AWS.S3();
 
 // Log to verify the bucket name
 console.log('S3 Bucket Name:', process.env.AWS_S3_BUCKET_NAME);
 
-// Set up multer storage engine with S3 (no ACL since your bucket doesn't allow them)
+// Set up multer storage engine with S3 using custom function
+const storage = multer.memoryStorage(); // Store file in memory for upload
 const upload = multer({
-  storage: multerS3({
-    s3: s3,
-    bucket: process.env.AWS_S3_BUCKET_NAME,
-    metadata: function (req, file, cb) {
-      cb(null, { fieldName: file.fieldname });
-    },
-    key: function (req, file, cb) {
-      // Unique filename in S3
-      cb(null, `profile-pics/${Date.now().toString()}-${file.originalname}`);
-    },
-  }),
-});
-export default upload;
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'), false);
+    }
+  },
+}).single('profilePicture');
+
+// Upload to S3 manually using AWS SDK v3
+const uploadToS3 = async (file, fileName) => {
+  const uploadParams = {
+    Bucket: process.env.AWS_S3_BUCKET_NAME,
+    Key: `profile-pics/${Date.now().toString()}-${fileName}`, // Unique file name in S3
+    Body: file.buffer, // The file buffer
+    ContentType: file.mimetype, // Set content type
+  };
+
+  const command = new PutObjectCommand(uploadParams);
+  await s3Client.send(command); // Upload file to S3 using AWS SDK v3
+
+  // Return the S3 URL
+  return `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${uploadParams.Key}`;
+};
+
+// Export multer and S3 upload function
+export { upload, uploadToS3 };
