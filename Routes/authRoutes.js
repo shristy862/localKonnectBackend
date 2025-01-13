@@ -1,9 +1,8 @@
 // routes/adminRoutes.js
 import { Router } from 'express';
-import { loginUsers } from '../Controllers/userControllers.js';
 import { userDashboard } from '../users/Controllers/dashboardControllers.js';
 import { authenticateToken } from '../middlewares/verifyToken.js';
-import { signup, verifyOtp,createPassword } from '../Controllers/authController.js'; 
+import { signup, verifyOtp,createPassword,loginUsers } from '../Controllers/authController.js'; 
 
 const router = Router();
 

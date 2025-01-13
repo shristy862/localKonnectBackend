@@ -216,6 +216,69 @@ export const createPassword = async (req, res) => {
   }
 };
 
+export const loginUsers = async (req, res) => {
+  const { email, password } = req.body;
+
+  // 1. Check for missing fields
+  if (!email || !password) {
+    return res.status(400).json({
+      success: false,
+      statusCode: 400,
+      message: 'Email and password are required.',
+    });
+  }
+
+  try {
+    // 2. Find the user by email
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        statusCode: 404,
+        message: 'User not found. Please sign up first.',
+      });
+    }
+
+    // 3. Verify the password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(400).json({
+        success: false,
+        statusCode: 400,
+        message: 'Invalid credentials. Please try again.',
+      });
+    }
+
+    // 4. Generate JWT token
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: user.userType }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: '1h' } 
+    );
+
+    return res.status(200).json({
+      success: true,
+      statusCode: 200,
+      message: `Login successful! Welcome ${user.userType}.`,
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        userType: user.userType,
+      },
+    });
+  } catch (error) {
+    console.error('Error during login:', error.message);
+    return res.status(500).json({
+      success: false,
+      statusCode: 500,
+      message: `Server error: ${error.message}`,
+    });
+  }
+};
+
 export const logout = async (req, res) => {
   try {
     // 1. Check if token exists in request header
