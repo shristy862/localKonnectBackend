@@ -155,7 +155,7 @@ export const getProfilePicture = async (req, res) => {
     if (!profile) {
       return res.status(404).json({
         success: false,
-        message: 'Profile not found.',
+        message: 'Profile picture not found.',
       });
     }
 
@@ -172,7 +172,7 @@ export const getProfilePicture = async (req, res) => {
     });
   }
 };
-// edit profile pic 
+// Controller for editing the profile picture
 export const editProfilePicture = async (req, res) => {
   try {
     // Ensure the user is authenticated
@@ -189,31 +189,24 @@ export const editProfilePicture = async (req, res) => {
     if (!req.file) {
       return res.status(400).json({
         success: false,
-        message: 'No file uploaded.',
+        message: 'No profile picture found to edit. Please upload a profile picture first.',
       });
     }
 
     // Log the uploaded file data for debugging
     console.log('Uploaded file:', req.file); // Check if file is present
 
-    // Upload the file to S3 and get the file URL
+    // Find the existing profile picture for the user
+    const profilePicture = await ProfilePicture.findOne({ userId: id });
+
+    // Upload the new file to S3 and get the file URL
     const profilePicUrl = await uploadToS3(req.file, req.file.originalname);
 
     // Log the URL for debugging
     console.log('Profile picture URL:', profilePicUrl);
 
-    // Find the existing profile picture for the user
-    const profilePicture = await ProfilePicture.findOne({ userId: id });
-
-    if (!profilePicture) {
-      return res.status(404).json({
-        success: false,
-        message: 'No existing profile picture found.',
-      });
-    }
-
     // Update the profile picture URL in the database
-    profilePicture.profilePhoto = profilePicUrl; // Assign the S3 URL
+    profilePicture.profilePhoto = profilePicUrl; // Assign the new S3 URL
     await profilePicture.save();
 
     // Return the updated profile picture details
@@ -234,6 +227,71 @@ export const editProfilePicture = async (req, res) => {
 
     return res.status(500).json({
       success: false,
+      message: `Server error: ${error.message}`,
+    });
+  }
+};
+
+// Controller to delete profile picture 
+export const deleteProfilePicture = async (req, res) => {
+  try {
+    // Ensure the user is authenticated
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        statusCode: 401,
+        message: 'Authentication required. No token provided.',
+      });
+    }
+
+    const { id } = req.user; // Extract user ID from token
+
+    // Validate that the ID is not empty or invalid
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        statusCode: 400,
+        message: 'Invalid user ID.',
+      });
+    }
+
+    // Find the existing profile picture for the user
+    const profilePicture = await ProfilePicture.findOne({ userId: id });
+
+    // If no profile picture found for the user
+    if (!profilePicture) {
+      return res.status(404).json({
+        success: false,
+        statusCode: 404,
+        message: 'No existing profile picture found for the user.',
+      });
+    }
+
+    // Delete the profile picture record from the database
+    await ProfilePicture.deleteOne({ userId: id });
+
+    // Return success message after deleting from the database
+    return res.status(200).json({
+      success: true,
+      statusCode: 200,
+      message: 'Profile picture deleted from database successfully.',
+    });
+  } catch (error) {
+    // Log and handle different types of errors
+    console.error('Error deleting profile picture:', error.message);
+
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        statusCode: 400,
+        message: 'Validation error occurred while processing your request.',
+      });
+    }
+
+    // For server errors or unknown issues
+    return res.status(500).json({
+      success: false,
+      statusCode: 500,
       message: `Server error: ${error.message}`,
     });
   }
