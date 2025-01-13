@@ -11,8 +11,9 @@ export const authenticateToken = (req, res, next) => {
         if (err) {
             return res.status(403).json({ message: 'Invalid token' });
         }
-
+        console.log('Decoded user:', user); 
         req.user = user; 
+        console.log('req.user after assignment:', req.user); 
         next();
     });
 };
