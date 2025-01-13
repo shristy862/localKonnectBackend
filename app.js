@@ -1,7 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import connectDB from './config/connectDB.js';
-import userRoutes from './users/Routes/userRoutes.js'
+import authRoutes from './Routes/authRoutes.js';
 dotenv.config();
 
 const app = express();
@@ -16,7 +16,7 @@ app.get('/', (req, res) => {
   res.send('Hello, Welcome to Local Knonnect App!');
 });
 
-app.use('/api/users/auth', userRoutes);
+app.use('/api/users/auth', authRoutes);
 // 404 Error Handler
 app.use((req, res, next) => {
   res.status(404).json({ message: 'Route not found' });
