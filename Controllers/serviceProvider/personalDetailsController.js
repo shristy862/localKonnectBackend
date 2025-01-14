@@ -171,7 +171,45 @@ export const getPersonalDetails = async (req, res) => {
     });
   }
 };
+// get image
+export const getImage = async (req, res) => {
+  try {
+    // Ensure the user is authenticated
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated.',
+      });
+    }
 
+    const { id } = req.user; // Get the authenticated user's ID from req.user
+
+    // Find the user's personal details by userId
+    const personalDetails = await PersonalDetails.findOne({ userId: id });
+
+    if (!personalDetails || !personalDetails.image) {
+      return res.status(404).json({
+        success: false,
+        message: 'Image not found.',
+      });
+    }
+
+    // Return the image URL from the database
+    return res.status(200).json({
+      success: true,
+      message: 'Image found.',
+      data: personalDetails.image.url, // Return the image URL
+    });
+
+  } catch (error) {
+    console.error('Error fetching image:', error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: `Server error: ${error.message}`,
+    });
+  }
+};
 // Controller for deleting personal details
 export const deletePersonalDetails = async (req, res) => {
   try {
