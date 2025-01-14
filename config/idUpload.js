@@ -1,11 +1,12 @@
-import { S3 } from '@aws-sdk/client-s3';
 import multer from 'multer';
-import { Upload } from '@aws-sdk/lib-storage';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import dotenv from 'dotenv';
 
+// Load environment variables
 dotenv.config();
 
-const s3 = new S3({
+// Configure AWS S3 Client
+const s3Client = new S3Client({
   region: process.env.AWS_REGION,
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -13,26 +14,38 @@ const s3 = new S3({
   },
 });
 
-// Multer configuration
-const uploadToS3 = multer({
-  storage: multer.memoryStorage(), // Store file in memory before uploading to S3
-  limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
+// Log to verify the bucket name
+console.log('S3 Bucket Name:', process.env.AWS_S3_BUCKET_NAME);
+
+// Set up multer storage engine with S3 using custom function
+const storage = multer.memoryStorage(); // Store file in memory for upload
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'), false);
+    }
+  },
 }).single('govtId');
 
-const uploadFile = async (file) => {
+// Upload to S3 manually using AWS SDK v3
+const uploadToS3 = async (file, fileName) => {
   const uploadParams = {
     Bucket: process.env.AWS_S3_BUCKET_NAME,
-    Key: `govtId/${Date.now()}-${file.originalname}`,
-    Body: file.buffer,
-    ACL: 'public-read', // Set this to 'private' if the file should not be public
+    Key: `id/${Date.now().toString()}-${fileName}`, 
+    Body: file.buffer, // The file buffer
+    ContentType: file.mimetype, // Set content type
   };
 
-  const parallelUpload = new Upload({
-    client: s3,
-    params: uploadParams,
-  });
+  const command = new PutObjectCommand(uploadParams);
+  await s3Client.send(command); // Upload file to S3 using AWS SDK v3
 
-  await parallelUpload.done();
+  // Return the S3 URL
+  return `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${uploadParams.Key}`;
 };
 
-export { uploadToS3, uploadFile };
+// Export multer and S3 upload function
+export { upload, uploadToS3 };

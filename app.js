@@ -7,6 +7,7 @@ import userRoutes from './Routes/user/userRoutes.js';
 import pictureRoutes from './Routes/serviceproviderProfile/profilePicRoutes.js';
 import personalDetails from './Routes/serviceproviderProfile/personalDetails.js';
 import services from './Routes/serviceproviderProfile/serviceRoutes.js';
+import imageRoutes from './models/routes.js';
 const app = express();
 
 // Middleware
@@ -28,6 +29,8 @@ app.use('/api/auth/serviceprovider/profile/' , pictureRoutes);
 app.use('/api/auth/serviceprovider/personaldetails', personalDetails);
 
 app.use('/api/auth/serviceprovider/services' , services);
+
+app.use('/api/images/upload' ,imageRoutes);
 // 404 Error Handler
 app.use((req, res, next) => {
   res.status(404).json({ message: 'Route not found' });

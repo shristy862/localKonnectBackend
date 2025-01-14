@@ -1,10 +1,11 @@
 import PersonalDetails from '../../models/serviceProvider/personalDetailsModal.js';
+import { uploadToS3 } from '../../config/idUpload.js';
 
 export const addPersonalDetails = async (req, res) => {
-  console.log('User from token:', req.user);  
-    console.log('Request body:', req.body);    
-
+  console.log(req.user);
   try {
+    console.log('Request Body:', req.body);
+    console.log('Uploaded File:', req.file);
     // Check if the user is authenticated
     if (!req.user) {
       return res.status(401).json({
@@ -13,9 +14,7 @@ export const addPersonalDetails = async (req, res) => {
       });
     }
 
-    const { id } = req.user;  // Extract user ID from token
-
-    // Destructure the personal details from the request body
+    const { id } = req.user; // Extract user ID from token
     const { name, address } = req.body;
 
     // Validate that all necessary fields are present
@@ -26,17 +25,24 @@ export const addPersonalDetails = async (req, res) => {
       });
     }
 
+    // Handle image upload if provided
+    let image = null;
+    if (req.file) {
+      const fileUrl = await uploadToS3(req.file, req.file.originalname);
+      image = { url: fileUrl, uploadedAt: new Date() };
+    }
+
     // Create a new personal details entry
     const personalDetails = new PersonalDetails({
       userId: id,
       name,
       address,
+      image,
     });
 
     // Save the personal details to the database
     await personalDetails.save();
 
-    // Return success response
     return res.status(201).json({
       success: true,
       message: 'Personal details added successfully.',
@@ -55,7 +61,11 @@ export const addPersonalDetails = async (req, res) => {
 // Controller for editing personal details
 export const editPersonalDetails = async (req, res) => {
   try {
-    // Ensure the user is authenticated
+    // Log the request body for debugging
+    console.log('Request Body:', req.body);
+    console.log('Uploaded File:', req.file);
+
+    // Check if the user is authenticated
     if (!req.user) {
       return res.status(401).json({
         success: false,
@@ -64,10 +74,18 @@ export const editPersonalDetails = async (req, res) => {
     }
 
     const { id } = req.user; // Extract user ID from token
-    const { name, address } = req.body; // Extract name and address from the request body
+    const { name, address, govtId } = req.body;
 
-    // Find the user's personal details using their userId
-    let personalDetails = await PersonalDetails.findOne({ userId: id });
+    // Validate that at least one field is provided
+    if (!name && !address && !govtId && !req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'At least one field (name, address, govtId, or file) must be provided to update.',
+      });
+    }
+
+    // Find the personal details by userId
+    const personalDetails = await PersonalDetails.findOne({ userId: id });
 
     if (!personalDetails) {
       return res.status(404).json({
@@ -89,7 +107,18 @@ export const editPersonalDetails = async (req, res) => {
       if (address.postalCode) personalDetails.address.postalCode = address.postalCode;
     }
 
-    // Save the updated personal details
+    if (govtId) {
+      personalDetails.govtId = govtId; // Update the govtId field
+    }
+
+    // Handle image upload if a new file is provided
+    if (req.file) {
+      // Upload the new image to S3
+      const fileUrl = await uploadToS3(req.file, req.file.originalname);
+      personalDetails.image = { url: fileUrl, uploadedAt: new Date() };
+    }
+
+    // Save the updated personal details to the database
     await personalDetails.save();
 
     return res.status(200).json({
@@ -99,13 +128,13 @@ export const editPersonalDetails = async (req, res) => {
     });
   } catch (error) {
     console.error('Error updating personal details:', error.message);
+
     return res.status(500).json({
       success: false,
       message: `Server error: ${error.message}`,
     });
   }
 };
-
 // Controller for getting personal details
 export const getPersonalDetails = async (req, res) => {
   try {
