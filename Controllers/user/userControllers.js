@@ -26,7 +26,7 @@ export const userDashboard = async (req, res) => {
   
       // Prepare dashboard data
       const dashboardData = {
-        message: `Welcome to your dashboard, ${email}`,
+        message: `Welcome to your dashboard, ${user.userType}`,
         role,
         userId: id,
         userInfo: {

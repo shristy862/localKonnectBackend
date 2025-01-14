@@ -2,11 +2,11 @@ dotenv.config();
 import dotenv from 'dotenv';
 import express from 'express';
 import connectDB from './config/connectDB.js';
-import authRoutes from './Routes/authRoutes.js';
-import userRoutes from './Routes/userRoutes.js';
-import profileRoutes from './Routes/profilePicRoutes.js';
-import personalDetails from './Routes/personalDetails.js';
-import services from './Routes/serviceRoutes.js';
+import authRoutes from './Routes/auth/authRoutes.js';
+import userRoutes from './Routes/user/userRoutes.js';
+import profileRoutes from './Routes/serviceproviderProfile/profilePicRoutes.js';
+import personalDetails from './Routes/serviceproviderProfile/personalDetails.js';
+import services from './Routes/serviceproviderProfile/serviceRoutes.js';
 const app = express();
 
 // Middleware

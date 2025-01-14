@@ -1,11 +1,11 @@
-import Service from '../../models/profile/serviceModal.js';
+import Service from '../../models/serviceProvider/serviceModal.js';
 import { SERVICES } from '../../constants/services.js';
 import { PAYMENT_MODES } from '../../constants/paymentModes.js';
 
 export const addMultipleServices = async (req, res) => {
   try {
     const { id } = req.user;
-    const services = req.body.services; // Expect an array of services in the request body
+    const services = req.body.services; 
 
     // Validate input
     if (!Array.isArray(services) || services.length === 0) {
