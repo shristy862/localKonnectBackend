@@ -3,8 +3,10 @@ import dotenv from 'dotenv';
 import express from 'express';
 import connectDB from './config/connectDB.js';
 import authRoutes from './Routes/authRoutes.js';
-import userRoutes from './Routes/userRoutes.js'
-
+import userRoutes from './Routes/userRoutes.js';
+import profileRoutes from './Routes/profilePicRoutes.js';
+import personalDetails from './Routes/personalDetails.js';
+import services from './Routes/serviceRoutes.js';
 const app = express();
 
 // Middleware
@@ -20,6 +22,12 @@ app.get('/', (req, res) => {
 app.use('/api/users/auth', authRoutes);
 
 app.use('/api/auth', userRoutes);
+
+app.use('/api/auth/profile' , profileRoutes);
+
+app.use('/api/auth/personal-details', personalDetails);
+
+app.use('/api/auth/services' , services);
 // 404 Error Handler
 app.use((req, res, next) => {
   res.status(404).json({ message: 'Route not found' });

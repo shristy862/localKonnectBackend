@@ -1,0 +1,23 @@
+export const SERVICES = {
+    GENERAL_CLEANING: 'General Cleaning',
+    DEEP_CLEANING: 'Deep Cleaning',
+    ELECTRICIAN: 'Electrician',
+    PLUMBING: 'Plumbing',
+    AC_REPAIR_MAINTENANCE: 'AC Repair and Maintenance',
+    CARPENTRY: 'Carpentry',
+    PAINTING: 'Painting',
+    PEST_CONTROL: 'Pest Control',
+    APPLIANCE_REPAIR: 'Appliance Repair',
+    SOFA_CLEANING: 'Sofa Cleaning',
+    MATTRESS_CLEANING: 'Mattress Cleaning',
+    WATER_PURIFIER: 'Water Purifier Installation/Repair',
+    CAR_CLEANING: 'Car Cleaning',
+    GEYSER_REPAIR: 'Geyser Installation/Repair',
+    HOME_SANITIZATION: 'Home Sanitization',
+    PACKING_MOVING: 'Packing and Moving Services',
+    HANDYMAN_SERVICES: 'Handyman Services',
+    GARDEN_MAINTENANCE: 'Garden Maintenance',
+    SECURITY_SYSTEM: 'Security System Installation/Repair',
+    MOBILE_LAPTOP_REPAIR: 'Mobile or Laptop Repair',
+  };
+  
