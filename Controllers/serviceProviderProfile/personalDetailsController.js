@@ -66,14 +66,6 @@ export const editPersonalDetails = async (req, res) => {
     const { id } = req.user; // Extract user ID from token
     const { name, address } = req.body; // Extract name and address from the request body
 
-    // Check if the required fields are present
-    if (!name || !address || !address.street || !address.city || !address.state || !address.postalCode) {
-      return res.status(400).json({
-        success: false,
-        message: 'Missing required fields.',
-      });
-    }
-
     // Find the user's personal details using their userId
     let personalDetails = await PersonalDetails.findOne({ userId: id });
 
@@ -84,9 +76,18 @@ export const editPersonalDetails = async (req, res) => {
       });
     }
 
-    // Update the personal details
-    personalDetails.name = name;
-    personalDetails.address = address;
+    // Only update the fields that are provided in the request body
+    if (name) {
+      personalDetails.name = name;
+    }
+
+    if (address) {
+      // If the address is provided, update the specific fields within the address
+      if (address.street) personalDetails.address.street = address.street;
+      if (address.city) personalDetails.address.city = address.city;
+      if (address.state) personalDetails.address.state = address.state;
+      if (address.postalCode) personalDetails.address.postalCode = address.postalCode;
+    }
 
     // Save the updated personal details
     await personalDetails.save();
@@ -98,6 +99,79 @@ export const editPersonalDetails = async (req, res) => {
     });
   } catch (error) {
     console.error('Error updating personal details:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: `Server error: ${error.message}`,
+    });
+  }
+};
+
+// Controller for getting personal details
+export const getPersonalDetails = async (req, res) => {
+  try {
+    // Ensure the user is authenticated
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated properly.',
+      });
+    }
+
+    const { id } = req.user; // Extract user ID from token
+
+    // Fetch the user's personal details using their userId
+    const personalDetails = await PersonalDetails.findOne({ userId: id });
+
+    if (!personalDetails) {
+      return res.status(404).json({
+        success: false,
+        message: 'Personal details not found.',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Personal details fetched successfully.',
+      data: personalDetails,
+    });
+  } catch (error) {
+    console.error('Error fetching personal details:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: `Server error: ${error.message}`,
+    });
+  }
+};
+
+// Controller for deleting personal details
+export const deletePersonalDetails = async (req, res) => {
+  try {
+    // Ensure the user is authenticated
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated properly.',
+      });
+    }
+
+    const { id } = req.user; // Extract user ID from token
+
+    // Find and delete the user's personal details using their userId
+    const personalDetails = await PersonalDetails.findOneAndDelete({ userId: id });
+
+    if (!personalDetails) {
+      return res.status(404).json({
+        success: false,
+        message: 'Personal details not found.',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Personal details deleted successfully.',
+    });
+  } catch (error) {
+    console.error('Error deleting personal details:', error.message);
     return res.status(500).json({
       success: false,
       message: `Server error: ${error.message}`,
