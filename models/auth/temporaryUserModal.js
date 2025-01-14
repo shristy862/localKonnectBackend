@@ -7,7 +7,6 @@ const temporaryUserSchema = new mongoose.Schema({
   userType: { type: String, required: true },
 });
 
-// TTL Index: Automatically remove the document 5 minutes after `otpExpiry`
 temporaryUserSchema.index({ otpExpiry: 1 }, { expireAfterSeconds: 0 });
 
 const TemporaryUser = mongoose.model('TemporaryUser', temporaryUserSchema);

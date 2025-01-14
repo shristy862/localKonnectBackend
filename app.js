@@ -31,6 +31,7 @@ app.use('/api/auth/serviceprovider/personaldetails', personalDetails);
 app.use('/api/auth/serviceprovider/services' , services);
 
 app.use('/api/images/upload' ,imageRoutes);
+
 // 404 Error Handler
 app.use((req, res, next) => {
   res.status(404).json({ message: 'Route not found' });

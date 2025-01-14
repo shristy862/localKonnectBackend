@@ -14,7 +14,6 @@ export const userDashboard = async (req, res) => {
   
       const { id, email, role } = req.user;
   
-      // Fetch user data from the database
       const user = await User.findById(id);
       if (!user) {
         return res.status(404).json({
@@ -24,7 +23,6 @@ export const userDashboard = async (req, res) => {
         });
       }
   
-      // Prepare dashboard data
       const dashboardData = {
         message: `Welcome to your dashboard, ${user.userType}`,
         role,

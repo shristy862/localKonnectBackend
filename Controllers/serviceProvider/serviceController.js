@@ -2,9 +2,8 @@ import Service from '../../models/serviceProvider/serviceModal.js';
 import { SERVICES } from '../../constants/services.js';
 
 export const addMultipleServices = async (req, res) => {
-  console.log(req.user); // To check if req.user is populated
-  const { id } = req.user; // Extract the user ID from req.user
-  console.log(id); // To verify the extracted ID
+
+  const { id } = req.user;
 
   try {
     const services = req.body.services; 
@@ -38,7 +37,7 @@ export const addMultipleServices = async (req, res) => {
 
     // Prepare and save services
     const servicesToSave = services.map(service => ({
-      userId: id, // Use the correct ID here
+      userId: id, 
       ...service,
     }));
 
@@ -60,10 +59,9 @@ export const addMultipleServices = async (req, res) => {
 
 export const editService = async (req, res) => {
   try {
-    const { serviceId, serviceName, description, visitCharge } = req.body; // Get the serviceId and other fields from the request body
-    const userId = req.user.id; // Extract user ID from req.user (set by the authenticateToken middleware)
+    const { serviceId, serviceName, description, visitCharge } = req.body; 
+    const userId = req.user.id;
 
-    // Validate that serviceId is provided in the request body
     if (!serviceId) {
       return res.status(400).json({
         success: false,
@@ -71,7 +69,6 @@ export const editService = async (req, res) => {
       });
     }
 
-    // Find the service by its ID and user ID
     const service = await Service.findOne({ _id: serviceId, userId });
 
     if (!service) {
@@ -81,7 +78,6 @@ export const editService = async (req, res) => {
       });
     }
 
-    // Only update the fields that are provided
     if (serviceName) {
       if (!Object.values(SERVICES).includes(serviceName)) {
         return res.status(400).json({
@@ -119,7 +115,7 @@ export const editService = async (req, res) => {
 
 export const viewServices = async (req, res) => {
   try {
-    const userId = req.user.id; // Extract user ID from the token
+    const userId = req.user.id; 
 
     // Fetch services for the authenticated user
     const services = await Service.find({ userId });
@@ -147,8 +143,8 @@ export const viewServices = async (req, res) => {
 
 export const deleteService = async (req, res) => {
   try {
-    const { id } = req.user; // Extract user ID from the token
-    const { serviceId } = req.params; // Extract service ID from request parameters
+    const { id } = req.user; 
+    const { serviceId } = req.params; 
 
     // Check if the service exists and belongs to the authenticated user
     const service = await Service.findOne({ _id: serviceId, userId: id });

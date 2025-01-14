@@ -14,4 +14,5 @@ router.get('/viewServices', authenticateToken, viewServices);
 
 // Route to delete services
 router.delete('/deleteServices/:serviceId', authenticateToken, deleteService);
+
 export default router;

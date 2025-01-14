@@ -24,5 +24,4 @@ const personalDetailsSchema = new mongoose.Schema({
 
 
 const PersonalDetails = mongoose.model('PersonalDetails', personalDetailsSchema);
-
 export default PersonalDetails;

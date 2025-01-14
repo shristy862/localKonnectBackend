@@ -4,8 +4,6 @@ import { uploadToS3 } from '../../config/idUpload.js';
 export const addPersonalDetails = async (req, res) => {
   console.log(req.user);
   try {
-    console.log('Request Body:', req.body);
-    console.log('Uploaded File:', req.file);
     // Check if the user is authenticated
     if (!req.user) {
       return res.status(401).json({
@@ -61,9 +59,6 @@ export const addPersonalDetails = async (req, res) => {
 // Controller for editing personal details
 export const editPersonalDetails = async (req, res) => {
   try {
-    // Log the request body for debugging
-    console.log('Request Body:', req.body);
-    console.log('Uploaded File:', req.file);
 
     // Check if the user is authenticated
     if (!req.user) {

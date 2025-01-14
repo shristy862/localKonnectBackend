@@ -2,6 +2,7 @@ import express from 'express';
 import { addPersonalDetails,getImage, editPersonalDetails , getPersonalDetails, deletePersonalDetails} from '../../Controllers/serviceProvider/personalDetailsController.js';
 import { upload } from '../../config/idUpload.js';
 import {authenticateToken} from '../../middlewares/verifyToken.js';
+
 const router = express.Router();
 
 // Route to add personal details with file upload to S3

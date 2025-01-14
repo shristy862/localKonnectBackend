@@ -3,7 +3,6 @@ import ProfilePicture from '../../models/serviceProvider/profilePicModal.js';
 
 // Controller for uploading profile picture
 export const uploadProfilePicture = async (req, res) => {
-    console.log('User from token:', req.user);
   
     try {
       // Check if the file is uploaded
@@ -25,8 +24,6 @@ export const uploadProfilePicture = async (req, res) => {
       const { id } = req.user; // Extract user ID from token
       const fileName = req.file.originalname; // Get the file name
       const profilePicUrl = await uploadToS3(req.file, fileName); // Upload to S3 and get the file URL
-  
-      console.log('Profile picture URL:', profilePicUrl);
   
       // Check if the uploaded URL already exists in the database
       const existingProfilePic = await ProfilePicture.findOne({ profilePhoto: profilePicUrl });
@@ -136,11 +133,9 @@ export const uploadProfilePicture = async (req, res) => {
       // Upload the new file to S3 and get the file URL
       const profilePicUrl = await uploadToS3(req.file, req.file.originalname);
   
-      // Log the URL for debugging
       console.log('Profile picture URL:', profilePicUrl);
   
-      // Update the profile picture URL in the database
-      profilePicture.profilePhoto = profilePicUrl; // Assign the new S3 URL
+      profilePicture.profilePhoto = profilePicUrl; 
       await profilePicture.save();
   
       // Return the updated profile picture details
@@ -222,7 +217,6 @@ export const uploadProfilePicture = async (req, res) => {
         });
       }
   
-      // For server errors or unknown issues
       return res.status(500).json({
         success: false,
         statusCode: 500,

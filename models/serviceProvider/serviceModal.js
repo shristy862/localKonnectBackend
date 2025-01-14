@@ -9,7 +9,7 @@ const serviceSchema = new mongoose.Schema({
     enum: Object.values(SERVICES),
   },
   description: { type: String, required: true },
-  visitCharge: { type: Number, required: true }, // Keep visitCharge
+  visitCharge: { type: Number, required: true }, 
 }, { timestamps: true });
 
 const Service = mongoose.model('Service', serviceSchema);

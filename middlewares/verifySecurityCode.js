@@ -1,4 +1,5 @@
 export const verifySecurityCode = (req, res, next) => {
+  
     const { securityCode } = req.body;
     const requiredSecurityCode = 'abcde';
   

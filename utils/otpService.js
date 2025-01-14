@@ -10,7 +10,7 @@ export const verifyOtp = async (email, otp) => {
       return {
         isValid: isOtpValid,
         tempRecord: tempUserRecord,
-        type: tempUserRecord.userType,  // Return the userType from the enum
+        type: tempUserRecord.userType,  
       };
     }
 

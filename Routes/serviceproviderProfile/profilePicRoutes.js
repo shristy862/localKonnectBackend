@@ -16,4 +16,5 @@ router.put('/edit-picture', authenticateToken, upload, editProfilePicture);
 
 // Route to delete the profile picture from the database
 router.delete('/delete-picture', authenticateToken, deleteProfilePicture);
+
 export default router;
