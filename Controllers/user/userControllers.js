@@ -1,4 +1,4 @@
-import User from '../models/user.js'; 
+import User from '../../models/auth/user.js'; 
 
 // Controller for user dashboard
 export const userDashboard = async (req, res) => {

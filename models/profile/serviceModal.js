@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
-import { SERVICES } from '../constants/services.js';
-import { PAYMENT_MODES } from '../constants/paymentModes.js';
+import { SERVICES } from '../../constants/services.js';
+import { PAYMENT_MODES } from '../../constants/paymentModes.js';
 
 const serviceSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },

@@ -1,4 +1,4 @@
-import TemporaryUser from '../models/temporaryUserModal.js';
+import TemporaryUser from '../models/auth/temporaryUserModal.js';
 
 export const verifyOtp = async (email, otp) => {
   try {

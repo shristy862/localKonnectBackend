@@ -1,5 +1,5 @@
 import express from 'express';
-import { addPersonalDetails, editPersonalDetails, viewPersonalDetails, deletePersonalDetails } from '../Controllers/personalDetailsController.js';
+import { addPersonalDetails, editPersonalDetails, viewPersonalDetails, deletePersonalDetails } from '../Controllers/profile/personalDetailsController.js';
 import {authenticateToken} from '../middlewares/verifyToken.js';
 import multer from 'multer'; 
 

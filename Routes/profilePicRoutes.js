@@ -1,5 +1,5 @@
 import express from 'express';
-import {uploadProfilePicture, getProfilePicture, editProfilePicture , deleteProfilePicture } from '../Controllers/profilePicController.js';
+import {uploadProfilePicture, getProfilePicture, editProfilePicture , deleteProfilePicture } from '../Controllers/profile/profilePicController.js';
 import { authenticateToken } from '../middlewares/verifyToken.js';
 import {upload} from '../config/pictureUpload.js';
 

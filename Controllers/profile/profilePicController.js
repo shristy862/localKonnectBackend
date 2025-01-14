@@ -1,5 +1,5 @@
-import { uploadToS3 } from '../config/pictureUpload.js';
-import ProfilePicture from '../models/profilePicture.js';
+import { uploadToS3 } from '../../config/pictureUpload.js';
+import ProfilePicture from '../../models/profile/profilePicModal.js';
 
 // Controller for uploading profile picture
 export const uploadProfilePicture = async (req, res) => {

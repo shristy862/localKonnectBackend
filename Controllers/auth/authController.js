@@ -1,9 +1,9 @@
-import User from '../models/user.js';
+import User from '../../models/auth/user.js';
 import bcrypt from 'bcryptjs';
-import TemporaryUser from '../models/temporaryUserModal.js';
-import { ROLES } from '../constants/role.js';
-import { generateOtp } from '../utils/generateOTP.js';
-import { sendEmail } from '../utils/emailservice.js';
+import TemporaryUser from '../../models/auth/temporaryUserModal.js';
+import { ROLES } from '../../constants/role.js';
+import { generateOtp } from '../../utils/generateOTP.js';
+import { sendEmail } from '../../utils/emailservice.js';
 import jwt from 'jsonwebtoken';
 
 export const signup = async (req, res) => {

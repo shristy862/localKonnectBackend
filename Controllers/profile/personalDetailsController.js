@@ -1,5 +1,5 @@
-import { uploadToS3 } from '../config/pictureUpload.js';
-import PersonalDetails from '../models/personalDetails.js';
+import { uploadToS3 } from '../../config/pictureUpload.js';
+import PersonalDetails from '../../models/profile/personalDetailsModal.js';
 
 export const addPersonalDetails = async (req, res) => {
   try {

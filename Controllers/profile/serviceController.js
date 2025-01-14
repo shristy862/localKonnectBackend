@@ -1,6 +1,6 @@
-import Service from '../models/services.js';
-import { SERVICES } from '../constants/services.js';
-import { PAYMENT_MODES } from '../constants/paymentModes.js';
+import Service from '../../models/profile/serviceModal.js';
+import { SERVICES } from '../../constants/services.js';
+import { PAYMENT_MODES } from '../../constants/paymentModes.js';
 
 export const addMultipleServices = async (req, res) => {
   try {

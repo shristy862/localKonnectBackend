@@ -1,5 +1,5 @@
 import express from 'express';
-import { addMultipleServices } from '../Controllers/serviceController.js';
+import { addMultipleServices } from '../Controllers/profile/serviceController.js';
 import { authenticateToken } from '../middlewares/verifyToken.js';
 
 const router = express.Router();
