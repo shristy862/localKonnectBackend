@@ -1,5 +1,5 @@
 import express from 'express';
-import { addPersonalDetails, editPersonalDetails , getPersonalDetails, deletePersonalDetails} from '../../Controllers/serviceProviderProfile/personalDetailsController.js';
+import { addPersonalDetails, editPersonalDetails , getPersonalDetails, deletePersonalDetails} from '../../Controllers/serviceProvider/personalDetailsController.js';
 
 import {authenticateToken} from '../../middlewares/verifyToken.js';
 const router = express.Router();

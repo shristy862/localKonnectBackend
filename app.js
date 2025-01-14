@@ -4,7 +4,7 @@ import express from 'express';
 import connectDB from './config/connectDB.js';
 import authRoutes from './Routes/auth/authRoutes.js';
 import userRoutes from './Routes/user/userRoutes.js';
-import profileRoutes from './Routes/serviceproviderProfile/profilePicRoutes.js';
+import pictureRoutes from './Routes/serviceproviderProfile/profilePicRoutes.js';
 import personalDetails from './Routes/serviceproviderProfile/personalDetails.js';
 import services from './Routes/serviceproviderProfile/serviceRoutes.js';
 const app = express();
@@ -23,11 +23,11 @@ app.use('/api/users/auth', authRoutes);
 
 app.use('/api/auth', userRoutes);
 
-app.use('/api/auth/profile' , profileRoutes);
+app.use('/api/auth/serviceprovider/profile/' , pictureRoutes);
 
-app.use('/api/auth/personal-details', personalDetails);
+app.use('/api/auth/serviceprovider/personaldetails', personalDetails);
 
-app.use('/api/auth/services' , services);
+app.use('/api/auth/serviceprovider/services' , services);
 // 404 Error Handler
 app.use((req, res, next) => {
   res.status(404).json({ message: 'Route not found' });

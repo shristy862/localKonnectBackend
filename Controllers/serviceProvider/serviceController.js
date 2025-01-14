@@ -144,3 +144,34 @@ export const viewServices = async (req, res) => {
     });
   }
 };
+
+export const deleteService = async (req, res) => {
+  try {
+    const { id } = req.user; // Extract user ID from the token
+    const { serviceId } = req.params; // Extract service ID from request parameters
+
+    // Check if the service exists and belongs to the authenticated user
+    const service = await Service.findOne({ _id: serviceId, userId: id });
+
+    if (!service) {
+      return res.status(404).json({
+        success: false,
+        message: 'Service not found or not authorized to delete.',
+      });
+    }
+
+    // Delete the service
+    await Service.findByIdAndDelete(serviceId);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Service deleted successfully.',
+    });
+  } catch (error) {
+    console.error('Error deleting service:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: `Server error: ${error.message}`,
+    });
+  }
+};
