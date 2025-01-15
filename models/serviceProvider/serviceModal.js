@@ -1,12 +1,10 @@
 import mongoose from 'mongoose';
-import { SERVICES } from '../../constants/services.js';
 
 const serviceSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   serviceName: {
     type: String,
-    required: true,
-    enum: Object.values(SERVICES),
+    required: true, // No enum constraint, allowing any string
   },
   description: { type: String, required: true },
   visitCharge: { type: Number, required: true }, 
