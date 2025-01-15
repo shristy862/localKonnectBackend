@@ -1,18 +1,23 @@
+// routes/serviceRoutes.js
 import express from 'express';
-import { addMultipleServices, editService, viewServices ,deleteService } from '../../Controllers/serviceProvider/serviceController.js';
-import { authenticateToken } from '../../middlewares/verifyToken.js';
+import { getServices, getServiceById, createService, updateService, deleteService } from '../../Controllers/serviceProvider/serviceController.js';
+import {authenticateToken} from '../../middlewares/verifyToken.js';
 
 const router = express.Router();
 
-router.post('/add-multiple', authenticateToken, addMultipleServices);
+// Get all services
+router.get('/', authenticateToken, getServices);
 
-// Edit a service by service ID
-router.put('/editService', authenticateToken,editService);
+// Get a single service by ID
+router.get('/:id', authenticateToken, getServiceById);
 
-// Route to view services
-router.get('/viewServices', authenticateToken, viewServices);
+// Create a new service
+router.post('/', authenticateToken, createService);
 
-// Route to delete services
-router.delete('/deleteServices/:serviceId', authenticateToken, deleteService);
+// Update a service by ID
+router.put('/:id', authenticateToken, updateService);
+
+// Delete a service by ID
+router.delete('/:id', authenticateToken, deleteService);
 
 export default router;

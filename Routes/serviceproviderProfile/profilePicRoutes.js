@@ -9,7 +9,7 @@ const router = express.Router();
 router.post('/upload-picture', authenticateToken, upload, uploadProfilePicture);
 
 // Route to get the profile picture of a user
-router.get('/get-picture', authenticateToken, getProfilePicture);
+router.get('/get-picture/:pictureId', authenticateToken, getProfilePicture);
 
 // Route for editing profile picture
 router.put('/edit-picture', authenticateToken, upload, editProfilePicture);

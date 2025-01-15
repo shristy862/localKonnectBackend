@@ -74,44 +74,65 @@ export const uploadProfilePicture = async (req, res) => {
   };
   
   // Controller for fetching profile picture
-export const getProfilePicture = async (req, res) => {
-  try {
-    // Check if the user is authenticated
-    if (!req.user) {
-      return res.status(401).json({
+  export const getProfilePicture = async (req, res) => {
+    try {
+      // Extract picture ID from request parameters
+      const { pictureId } = req.params;
+  
+      // Validate that the picture ID is provided
+      if (!pictureId) {
+        return res.status(400).json({
+          success: false,
+          message: 'Picture ID is required.',
+        });
+      }
+  
+      // Check if the user is authenticated
+      if (!req.user) {
+        return res.status(401).json({
+          success: false,
+          message: 'User not authenticated properly.',
+        });
+      }
+  
+      // Extract user ID from the token
+      const { id: userId } = req.user;
+  
+      // Find the profile picture in the database using the picture ID
+      const profilePicture = await ProfilePicture.findById(pictureId);
+  
+      if (!profilePicture) {
+        return res.status(404).json({
+          success: false,
+          message: 'Profile picture not found.',
+        });
+      }
+  
+      // Check if the picture is associated with the authenticated user
+      if (profilePicture.userId.toString() !== userId) {
+        return res.status(403).json({
+          success: false,
+          message: 'You do not have permission to access this profile picture.',
+        });
+      }
+  
+      // Return the profile picture details
+      return res.status(200).json({
+        success: true,
+        message: 'Profile picture fetched successfully.',
+        profilePicUrl: profilePicture.profilePhoto,
+      });
+    } catch (error) {
+      console.error('Error fetching profile picture:', error.message);
+  
+      return res.status(500).json({
         success: false,
-        message: 'User not authenticated properly.',
+        message: `Server error: ${error.message}`,
       });
     }
-
-    const { id } = req.user; // Extract user ID from token
-
-    // Find the profile picture in the database
-    const profilePicture = await ProfilePicture.findOne({ userId: id });
-
-    if (!profilePicture) {
-      return res.status(404).json({
-        success: false,
-        message: 'Profile picture not found for this user.',
-      });
-    }
-
-    // Return the profile picture details
-    return res.status(200).json({
-      success: true,
-      message: 'Profile picture fetched successfully.',
-      profilePicUrl: profilePicture.profilePhoto,
-    });
-  } catch (error) {
-    console.error('Error fetching profile picture:', error.message);
-
-    return res.status(500).json({
-      success: false,
-      message: `Server error: ${error.message}`,
-    });
-  }
-};
-
+  };
+  
+  
 // Controller for editing profile picture
 export const editProfilePicture = async (req, res) => {
   try {

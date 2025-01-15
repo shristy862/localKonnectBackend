@@ -1,173 +1,109 @@
 import Service from '../../models/serviceProvider/serviceModal.js';
-import { SERVICES } from '../../constants/services.js';
 
-export const addMultipleServices = async (req, res) => {
-
-  const { id } = req.user;
+// Get all services
+export const getServices = async (req, res) => {
+  console.log(`User ID from token: ${req.user.id}`); // Log the userId from the token
 
   try {
-    const services = req.body.services; 
-
-    // Validate input
-    if (!Array.isArray(services) || services.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'Services must be an array and cannot be empty.',
-      });
+    const services = await Service.find({ userId: req.user.id });
+    
+    if (!services ) {
+      return res.status(404).json({ message: 'No services found' });
     }
 
-    // Validate each service
-    for (const service of services) {
-      const { serviceName, description, visitCharge } = service;
-
-      if (!serviceName || !description || !visitCharge) {
-        return res.status(400).json({
-          success: false,
-          message: 'Each service must have a serviceName, description, and visitCharge.',
-        });
-      }
-
-      if (!Object.values(SERVICES).includes(serviceName)) {
-        return res.status(400).json({
-          success: false,
-          message: `Invalid serviceName: ${serviceName}. Allowed values are: ${Object.values(SERVICES).join(', ')}.`,
-        });
-      }
-    }
-
-    // Prepare and save services
-    const servicesToSave = services.map(service => ({
-      userId: id, 
-      ...service,
-    }));
-
-    const savedServices = await Service.insertMany(servicesToSave);
-
-    return res.status(201).json({
-      success: true,
-      message: 'Services added successfully.',
-      services: savedServices,
-    });
-  } catch (error) {
-    console.error('Error adding multiple services:', error.message);
-    return res.status(500).json({
-      success: false,
-      message: `Server error: ${error.message}`,
-    });
+    res.status(200).json(services);
+  } catch (err) {
+    console.error('Error fetching services:', err);
+    res.status(500).json({ message: 'Error fetching services: ' + err.message });
   }
 };
 
-export const editService = async (req, res) => {
+// Get a single service by ID
+export const getServiceById = async (req, res) => {
+  console.log(`User ID from getbyId route: ${req.user.id}`); 
+
   try {
-    const { serviceId, serviceName, description, visitCharge } = req.body; 
-    const userId = req.user.id;
-
-    if (!serviceId) {
-      return res.status(400).json({
-        success: false,
-        message: 'Service ID is required.',
-      });
-    }
-
-    const service = await Service.findOne({ _id: serviceId, userId });
-
+    const service = await Service.findOne({ _id: req.params.id, userId: req.user.id });
+    
     if (!service) {
-      return res.status(404).json({
-        success: false,
-        message: 'Service not found or you do not have permission to edit this service.',
-      });
+      return res.status(404).json({ message: 'Service not found' });
     }
 
-    if (serviceName) {
-      if (!Object.values(SERVICES).includes(serviceName)) {
-        return res.status(400).json({
-          success: false,
-          message: `Invalid serviceName: ${serviceName}. Allowed values are: ${Object.values(SERVICES).join(', ')}.`,
-        });
-      }
-      service.serviceName = serviceName;
-    }
-
-    if (description) {
-      service.description = description;
-    }
-
-    if (visitCharge) {
-      service.visitCharge = visitCharge;
-    }
-
-    // Save the updated service
-    await service.save();
-
-    return res.status(200).json({
-      success: true,
-      message: 'Service updated successfully.',
-      service,
-    });
-  } catch (error) {
-    console.error('Error updating service:', error.message);
-    return res.status(500).json({
-      success: false,
-      message: `Server error: ${error.message}`,
-    });
+    res.status(200).json(service);
+  } catch (err) {
+    console.error('Error fetching service:', err);
+    res.status(500).json({ message: 'Error fetching service: ' + err.message });
   }
 };
 
-export const viewServices = async (req, res) => {
+// Create a new service
+export const createService = async (req, res) => {
+  console.log(`User ID from token: ${req.user.id}`); // Log the userId from the token
+
+  const { serviceName, description, visitCharge } = req.body;
+
+  if (!serviceName || !description || !visitCharge) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
+
   try {
-    const userId = req.user.id; 
-
-    // Fetch services for the authenticated user
-    const services = await Service.find({ userId });
-
-    if (!services || services.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'No services found for this user.',
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: 'Services fetched successfully.',
-      services,
+    const newService = new Service({
+      userId: req.user.id,
+      serviceName,
+      description,
+      visitCharge,
     });
-  } catch (error) {
-    console.error('Error fetching services:', error.message);
-    return res.status(500).json({
-      success: false,
-      message: `Server error: ${error.message}`,
-    });
+
+    const savedService = await newService.save();
+    res.status(201).json(savedService);
+  } catch (err) {
+    console.error('Error creating service:', err);
+    res.status(500).json({ message: 'Error creating service: ' + err.message });
   }
 };
 
+// Update a service by ID
+export const updateService = async (req, res) => {
+  console.log(`User ID from token: ${req.user.id}`); // Log the userId from the token
+
+  const { serviceName, description, visitCharge } = req.body;
+
+  if (!serviceName || !description || !visitCharge) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
+
+  try {
+    const updatedService = await Service.findOneAndUpdate(
+      { _id: req.params.id, userId: req.user.id },
+      req.body,
+      { new: true }
+    );
+
+    if (!updatedService) {
+      return res.status(404).json({ message: 'Service not found or unauthorized' });
+    }
+
+    res.status(200).json(updatedService);
+  } catch (err) {
+    console.error('Error updating service:', err);
+    res.status(500).json({ message: 'Error updating service: ' + err.message });
+  }
+};
+
+// Delete a service by ID
 export const deleteService = async (req, res) => {
+  console.log(`User ID from token: ${req.user.id}`); // Log the userId from the token
+
   try {
-    const { id } = req.user; 
-    const { serviceId } = req.params; 
+    const deletedService = await Service.findOneAndDelete({ _id: req.params.id, userId: req.user.id });
 
-    // Check if the service exists and belongs to the authenticated user
-    const service = await Service.findOne({ _id: serviceId, userId: id });
-
-    if (!service) {
-      return res.status(404).json({
-        success: false,
-        message: 'Service not found or not authorized to delete.',
-      });
+    if (!deletedService) {
+      return res.status(404).json({ message: 'Service not found or unauthorized' });
     }
 
-    // Delete the service
-    await Service.findByIdAndDelete(serviceId);
-
-    return res.status(200).json({
-      success: true,
-      message: 'Service deleted successfully.',
-    });
-  } catch (error) {
-    console.error('Error deleting service:', error.message);
-    return res.status(500).json({
-      success: false,
-      message: `Server error: ${error.message}`,
-    });
+    res.status(200).json({ message: 'Service deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting service:', err);
+    res.status(500).json({ message: 'Error deleting service: ' + err.message });
   }
 };
