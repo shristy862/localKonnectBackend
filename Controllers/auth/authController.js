@@ -255,7 +255,7 @@ export const loginUsers = async (req, res) => {
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.userType }, 
       process.env.JWT_SECRET, 
-      { expiresIn: '1h' } 
+      { expiresIn: '5d' } 
     );
 
     return res.status(200).json({
