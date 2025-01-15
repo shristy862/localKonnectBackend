@@ -73,94 +73,103 @@ export const uploadProfilePicture = async (req, res) => {
     }
   };
   
-  // Controller to get the profile picture of a user
-  export const getProfilePicture = async (req, res) => {
-    try {
-      // Get the user ID from the JWT token
-      const { id } = req.user;
-  
-      // Find the user's profile
-      const profile = await ProfilePicture.findOne({ userId: id });
-  
-      // Check if the profile exists
-      if (!profile) {
-        return res.status(404).json({
-          success: false,
-          message: 'Profile picture not found.',
-        });
-      }
-  
-      // Return the profile picture URL
-      return res.status(200).json({
-        success: true,
-        profilePicUrl: profile.profilePhoto,  // The URL of the profile picture
-      });
-    } catch (error) {
-      console.error('Error fetching profile picture:', error.message);
-      return res.status(500).json({
+  // Controller for fetching profile picture
+export const getProfilePicture = async (req, res) => {
+  try {
+    // Check if the user is authenticated
+    if (!req.user) {
+      return res.status(401).json({
         success: false,
-        message: `Server error: ${error.message}`,
+        message: 'User not authenticated properly.',
       });
     }
-  };
-  // Controller for editing the profile picture
-  export const editProfilePicture = async (req, res) => {
-    try {
-      // Ensure the user is authenticated
-      if (!req.user) {
-        return res.status(401).json({
-          success: false,
-          message: 'User not authenticated properly.',
-        });
-      }
-  
-      const { id } = req.user; // Extract user ID from token
-  
-      // Check if the file is uploaded
-      if (!req.file) {
-        return res.status(400).json({
-          success: false,
-          message: 'No profile picture found to edit. Please upload a profile picture first.',
-        });
-      }
-  
-      // Log the uploaded file data for debugging
-      console.log('Uploaded file:', req.file); // Check if file is present
-  
-      // Find the existing profile picture for the user
-      const profilePicture = await ProfilePicture.findOne({ userId: id });
-  
-      // Upload the new file to S3 and get the file URL
-      const profilePicUrl = await uploadToS3(req.file, req.file.originalname);
-  
-      console.log('Profile picture URL:', profilePicUrl);
-  
-      profilePicture.profilePhoto = profilePicUrl; 
-      await profilePicture.save();
-  
-      // Return the updated profile picture details
-      return res.status(200).json({
-        success: true,
-        message: 'Profile picture updated successfully.',
-        profilePicUrl,
-      });
-    } catch (error) {
-      console.error('Error updating profile picture:', error.message);
-  
-      if (error.name === 'MulterError') {
-        return res.status(400).json({
-          success: false,
-          message: 'File upload failed.',
-        });
-      }
-  
-      return res.status(500).json({
+
+    const { id } = req.user; // Extract user ID from token
+
+    // Find the profile picture in the database
+    const profilePicture = await ProfilePicture.findOne({ userId: id });
+
+    if (!profilePicture) {
+      return res.status(404).json({
         success: false,
-        message: `Server error: ${error.message}`,
+        message: 'Profile picture not found for this user.',
       });
     }
-  };
-  
+
+    // Return the profile picture details
+    return res.status(200).json({
+      success: true,
+      message: 'Profile picture fetched successfully.',
+      profilePicUrl: profilePicture.profilePhoto,
+    });
+  } catch (error) {
+    console.error('Error fetching profile picture:', error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: `Server error: ${error.message}`,
+    });
+  }
+};
+
+// Controller for editing profile picture
+export const editProfilePicture = async (req, res) => {
+  try {
+    // Check if the file is uploaded
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No file uploaded.',
+      });
+    }
+
+    // Check if the user is authenticated
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated properly.',
+      });
+    }
+
+    const { id } = req.user; // Extract user ID from token
+    const fileName = req.file.originalname; // Get the file name
+    const newProfilePicUrl = await uploadToS3(req.file, fileName); // Upload new file to S3 and get the URL
+
+    // Find the existing profile picture in the database
+    const existingProfilePicture = await ProfilePicture.findOne({ userId: id });
+
+    if (!existingProfilePicture) {
+      return res.status(404).json({
+        success: false,
+        message: 'No profile picture found to edit. Please upload a new picture first.',
+      });
+    }
+
+    // Update the profile picture URL in the database
+    existingProfilePicture.profilePhoto = newProfilePicUrl;
+    await existingProfilePicture.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Profile picture updated successfully.',
+      newProfilePicUrl,
+    });
+  } catch (error) {
+    console.error('Error editing profile picture:', error.message);
+
+    if (error.name === 'MulterError') {
+      return res.status(400).json({
+        success: false,
+        message: 'File upload failed.',
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: `Server error: ${error.message}`,
+    });
+  }
+};
   // Controller to delete profile picture 
   export const deleteProfilePicture = async (req, res) => {
     try {
