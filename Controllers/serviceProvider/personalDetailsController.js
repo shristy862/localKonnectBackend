@@ -1,5 +1,5 @@
 import PersonalDetails from '../../models/serviceProvider/personalDetailsModal.js';
-import { uploadToS3 } from '../../config/idUpload.js';
+import { uploadToS3 } from '../../config/idProofUpload.js';
 
 export const addPersonalDetails = async (req, res) => {
   console.log(req.user);

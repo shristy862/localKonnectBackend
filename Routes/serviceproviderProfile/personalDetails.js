@@ -1,6 +1,6 @@
 import express from 'express';
 import { addPersonalDetails,getImage, editPersonalDetails , getPersonalDetails, deletePersonalDetails} from '../../Controllers/serviceProvider/personalDetailsController.js';
-import { upload } from '../../config/idUpload.js';
+import { upload } from '../../config/idProofUpload.js';
 import {authenticateToken} from '../../middlewares/verifyToken.js';
 
 const router = express.Router();
