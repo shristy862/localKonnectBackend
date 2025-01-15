@@ -1,158 +1,113 @@
-import PersonalDetails from '../../models/serviceProvider/personalDetailsModal.js';
-import { uploadToS3 } from '../../config/idProofUpload.js';
+import PersonalDetails from '../../models/serviceProvider/personalDetailsModal.js'; 
+import { uploadToS3 } from '../../config/idProofUpload.js'; 
 
+// Add personal details
 export const addPersonalDetails = async (req, res) => {
-  console.log(req.user);
   try {
-    // Check if the user is authenticated
-    if (!req.user) {
-      return res.status(401).json({
-        success: false,
-        message: 'User not authenticated properly.',
-      });
+    // Get userId from the token (req.user is populated by authentication middleware)
+    const id = req.user.id;
+
+    // Check if personal details already exist for the given userId
+    const existingDetails = await PersonalDetails.findOne({userId: req.user.id});
+
+    if (existingDetails) {
+      // If personal details exist, throw an error with a 400 status code
+      return res.status(400).json({ message: 'Personal details already exist for this user' });
     }
 
-    const { id } = req.user; // Extract user ID from token
-    const { name, address } = req.body;
-
-    // Validate that all necessary fields are present
-    if (!name || !address || !address.street || !address.city || !address.state || !address.postalCode) {
-      return res.status(400).json({
-        success: false,
-        message: 'Missing required fields.',
-      });
-    }
-
-    // Handle image upload if provided
-    let image = null;
+    // Upload the image to S3 if it exists in the request
+    let imageUrl = '';
     if (req.file) {
-      const fileUrl = await uploadToS3(req.file, req.file.originalname);
-      image = { url: fileUrl, uploadedAt: new Date() };
+      imageUrl = await uploadToS3(req.file, req.file.originalname);
     }
 
-    // Create a new personal details entry
-    const personalDetails = new PersonalDetails({
-      userId: id,
-      name,
-      address,
-      image,
+    // Create new personal details
+    const newPersonalDetails = new PersonalDetails({
+      userId: id, // Use userId from the token
+      name: req.body.name,
+      address: {
+        street: req.body.address.street,
+        city: req.body.address.city,
+        state: req.body.address.state,
+        postalCode: req.body.address.postalCode,
+      },
+      image: imageUrl ? { url: imageUrl } : null, // Save the S3 URL if an image was uploaded
     });
 
-    // Save the personal details to the database
-    await personalDetails.save();
+    // Save the new personal details to the database
+    await newPersonalDetails.save();
 
-    return res.status(201).json({
-      success: true,
-      message: 'Personal details added successfully.',
-      data: personalDetails,
-    });
+    // Respond with the saved personal details
+    res.status(201).json(newPersonalDetails);
   } catch (error) {
-    console.error('Error adding personal details:', error.message);
-
-    return res.status(500).json({
-      success: false,
-      message: `Server error: ${error.message}`,
-    });
+    console.error(error);
+    res.status(500).json({ message: 'Error adding personal details' });
   }
 };
 
-// Controller for editing personal details
+// Edit personal details by ID
 export const editPersonalDetails = async (req, res) => {
+  const { id } = req.params;
+
   try {
+    const { name, email, phone } = req.body;
+    const file = req.file;
 
-    // Check if the user is authenticated
-    if (!req.user) {
-      return res.status(401).json({
-        success: false,
-        message: 'User not authenticated properly.',
-      });
-    }
-
-    const { id } = req.user; // Extract user ID from token
-    const { name, address, govtId } = req.body;
-
-    // Validate that at least one field is provided
-    if (!name && !address && !govtId && !req.file) {
-      return res.status(400).json({
-        success: false,
-        message: 'At least one field (name, address, govtId, or file) must be provided to update.',
-      });
-    }
-
-    // Find the personal details by userId
-    const personalDetails = await PersonalDetails.findOne({ userId: id });
+    // Find the personal details document by ID
+    const personalDetails = await PersonalDetails.findById(id);
 
     if (!personalDetails) {
-      return res.status(404).json({
-        success: false,
-        message: 'Personal details not found.',
-      });
+      return res.status(404).json({ message: 'Personal details not found.' });
     }
 
-    // Only update the fields that are provided in the request body
-    if (name) {
-      personalDetails.name = name;
-    }
+    // Update fields
+    if (name) personalDetails.name = name;
+    if (email) personalDetails.email = email;
+    if (phone) personalDetails.phone = phone;
 
-    if (address) {
-      // If the address is provided, update the specific fields within the address
-      if (address.street) personalDetails.address.street = address.street;
-      if (address.city) personalDetails.address.city = address.city;
-      if (address.state) personalDetails.address.state = address.state;
-      if (address.postalCode) personalDetails.address.postalCode = address.postalCode;
-    }
-
-    if (govtId) {
-      personalDetails.govtId = govtId; // Update the govtId field
-    }
-
-    // Handle image upload if a new file is provided
-    if (req.file) {
-      // Upload the new image to S3
-      const fileUrl = await uploadToS3(req.file, req.file.originalname);
-      personalDetails.image = { url: fileUrl, uploadedAt: new Date() };
+    // If a new file is uploaded, upload it to S3 and update the image field
+    if (file) {
+      // Upload the new file to S3 and get the URL
+      const s3Url = await uploadToS3(file, file.originalname);
+      
+      // Update the image URL in the database (replace the old one)
+      personalDetails.image = { url: s3Url };
     }
 
     // Save the updated personal details to the database
     await personalDetails.save();
 
-    return res.status(200).json({
-      success: true,
-      message: 'Personal details updated successfully.',
-      data: personalDetails,
-    });
+    res.status(200).json({ message: 'Personal details updated successfully.', data: personalDetails });
   } catch (error) {
     console.error('Error updating personal details:', error.message);
-
-    return res.status(500).json({
-      success: false,
-      message: `Server error: ${error.message}`,
-    });
+    res.status(500).json({ message: 'Error updating personal details.', error: error.message });
   }
 };
-// Controller for getting personal details
+// Get personal details by ID
+
 export const getPersonalDetails = async (req, res) => {
   try {
-    // Ensure the user is authenticated
+    // Ensure the user is authenticated by checking if the token is present
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        message: 'User not authenticated properly.',
+        message: 'User not authenticated.',
       });
     }
 
-    const { id } = req.user; // Extract user ID from token
+    const userId = req.user.id; // Extract userId from the token
 
-    // Fetch the user's personal details using their userId
-    const personalDetails = await PersonalDetails.findOne({ userId: id });
+    // Find the personal details for the user in the database
+    const personalDetails = await PersonalDetails.findOne({ userId });
 
     if (!personalDetails) {
       return res.status(404).json({
         success: false,
-        message: 'Personal details not found.',
+        message: 'Personal details not found for this user.',
       });
     }
 
+    // Return the personal details in the response
     return res.status(200).json({
       success: true,
       message: 'Personal details fetched successfully.',
@@ -166,10 +121,11 @@ export const getPersonalDetails = async (req, res) => {
     });
   }
 };
-// get image
-export const getImage = async (req, res) => {
+
+// Delete personal details by ID
+export const deletePersonalDetailsById = async (req, res) => {
   try {
-    // Ensure the user is authenticated
+    // Ensure the user is authenticated by checking if the token is present
     if (!req.user) {
       return res.status(401).json({
         success: false,
@@ -177,49 +133,11 @@ export const getImage = async (req, res) => {
       });
     }
 
-    const { id } = req.user; // Get the authenticated user's ID from req.user
+    const userId = req.user.id; // Extract userId from the token
+    const { id } = req.params; // Extract the personal details ID from the URL parameters
 
-    // Find the user's personal details by userId
-    const personalDetails = await PersonalDetails.findOne({ userId: id });
-
-    if (!personalDetails || !personalDetails.image) {
-      return res.status(404).json({
-        success: false,
-        message: 'Image not found.',
-      });
-    }
-
-    // Return the image URL from the database
-    return res.status(200).json({
-      success: true,
-      message: 'Image found.',
-      data: personalDetails.image.url, // Return the image URL
-    });
-
-  } catch (error) {
-    console.error('Error fetching image:', error.message);
-
-    return res.status(500).json({
-      success: false,
-      message: `Server error: ${error.message}`,
-    });
-  }
-};
-// Controller for deleting personal details
-export const deletePersonalDetails = async (req, res) => {
-  try {
-    // Ensure the user is authenticated
-    if (!req.user) {
-      return res.status(401).json({
-        success: false,
-        message: 'User not authenticated properly.',
-      });
-    }
-
-    const { id } = req.user; // Extract user ID from token
-
-    // Find and delete the user's personal details using their userId
-    const personalDetails = await PersonalDetails.findOneAndDelete({ userId: id });
+    // Find the personal details by ID
+    const personalDetails = await PersonalDetails.findById(id);
 
     if (!personalDetails) {
       return res.status(404).json({
@@ -228,6 +146,18 @@ export const deletePersonalDetails = async (req, res) => {
       });
     }
 
+    // Check if the personal details belong to the authenticated user
+    if (personalDetails.userId.toString() !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: 'You are not authorized to delete these personal details.',
+      });
+    }
+
+    // Delete the personal details
+    await PersonalDetails.findByIdAndDelete(id);
+
+    // Return success response
     return res.status(200).json({
       success: true,
       message: 'Personal details deleted successfully.',

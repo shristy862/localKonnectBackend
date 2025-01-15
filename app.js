@@ -30,9 +30,8 @@ app.use('/api/auth', userRoutes);
 
 app.use('/api/auth/serviceprovider/profile/' , pictureRoutes);
 
-app.use('/api/auth/serviceprovider/personaldetails', personalDetails);
+app.use('/api/personal-details', personalDetails);
 
-// Routes
 app.use('/api/services', serviceRoutes);
 
 app.use('/serviceprovider/' , addEmployee);

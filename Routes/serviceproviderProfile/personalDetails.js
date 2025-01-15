@@ -1,23 +1,25 @@
 import express from 'express';
-import { addPersonalDetails,getImage, editPersonalDetails , getPersonalDetails, deletePersonalDetails} from '../../Controllers/serviceProvider/personalDetailsController.js';
-import { upload } from '../../config/idProofUpload.js';
-import {authenticateToken} from '../../middlewares/verifyToken.js';
-
+import { upload } from '../../config/idProofUpload.js'; 
+import {
+  addPersonalDetails,
+  editPersonalDetails,
+  getPersonalDetails,
+  deletePersonalDetailsById
+} from '../../Controllers/serviceProvider/personalDetailsController.js';
+import { authenticateToken } from '../../middlewares/verifyToken.js';
 const router = express.Router();
 
-// Route to add personal details with file upload to S3
-router.post('/add', authenticateToken,upload, addPersonalDetails);
+// Route to add personal details with file upload
+router.post('/', upload,authenticateToken, addPersonalDetails);
 
-// Route to edit personal details
-router.put('/edit', authenticateToken,  upload, editPersonalDetails);
+// Route to edit personal details by ID with optional file upload
+router.put('/:id', upload,authenticateToken, editPersonalDetails);
 
-// Route to get personal details
-router.get('/view', authenticateToken, getPersonalDetails);
+// Route to get personal details 
+router.get('/', authenticateToken,getPersonalDetails);
 
-// Route to fetch the image by userId
-router.get('/fetch-image', authenticateToken,getImage);
+// Route to delete personal details by ID
+router.delete('/:id',authenticateToken, deletePersonalDetailsById);
 
-// Route to delete personal details
-router.delete('/delete', authenticateToken, deletePersonalDetails);
 
 export default router;
