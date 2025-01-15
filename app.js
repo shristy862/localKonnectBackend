@@ -1,6 +1,7 @@
 dotenv.config();
 import dotenv from 'dotenv';
 import express from 'express';
+import cors from 'cors';
 import connectDB from './config/connectDB.js';
 import authRoutes from './Routes/auth/authRoutes.js';
 import userRoutes from './Routes/user/userRoutes.js';
@@ -13,8 +14,11 @@ const app = express();
 // Middleware
 app.use(express.json());
 
+//CORS middleware
+app.use(cors());
 // Connect to MongoDB
 connectDB();
+
 
 app.get('/', (req, res) => {
   res.send('Hello, Welcome to Local Knonnect App!');
