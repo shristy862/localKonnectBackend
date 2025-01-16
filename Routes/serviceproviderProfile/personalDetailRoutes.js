@@ -5,7 +5,7 @@ import {
   editPersonalDetails,
   getPersonalDetails,
   deletePersonalDetailsById
-} from '../../Controllers/serviceProvider/personalDetailsController.js';
+} from '../../Controllers/serviceProvider/personalDetails.js';
 import { authenticateToken } from '../../middlewares/verifyToken.js';
 const router = express.Router();
 

@@ -1,6 +1,6 @@
 // routes/serviceRoutes.js
 import express from 'express';
-import { getServices, getServiceById, createService, updateService, deleteService } from '../../Controllers/serviceProvider/serviceController.js';
+import { getServices, getServiceById, createService, updateService, deleteService } from '../../Controllers/serviceProvider/service.js';
 import {authenticateToken} from '../../middlewares/verifyToken.js';
 
 const router = express.Router();

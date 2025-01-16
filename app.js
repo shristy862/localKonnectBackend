@@ -6,9 +6,10 @@ import connectDB from './config/connectDB.js';
 import authRoutes from './Routes/auth/authRoutes.js';
 import userRoutes from './Routes/user/userRoutes.js';
 import pictureRoutes from './Routes/serviceproviderProfile/profilePicRoutes.js';
-import personalDetails from './Routes/serviceproviderProfile/personalDetails.js';
+import personalDetails from './Routes/serviceproviderProfile/personalDetailRoutes.js';
 import serviceRoutes from './Routes/serviceproviderProfile/serviceRoutes.js';
-import addEmployee from './Routes/serviceproviderProfile/addEmployeeRoutes.js'
+import addEmployee from './Routes/serviceproviderProfile/addEmployeeRoutes.js';
+import paymentModeRoutes from './Routes/serviceproviderProfile/paymentModeRoutes.js';
 const app = express();
 
 // Middleware
@@ -35,6 +36,8 @@ app.use('/api/personal-details', personalDetails);
 app.use('/api/services', serviceRoutes);
 
 app.use('/serviceprovider/' , addEmployee);
+
+app.use('/api/paymentmodes', paymentModeRoutes);
 
 // 404 Error Handler
 app.use((req, res, next) => {
