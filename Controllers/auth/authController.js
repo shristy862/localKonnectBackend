@@ -42,19 +42,7 @@ export const signup = async (req, res) => {
     const existingTemporaryUser = await TemporaryUser.findOne({ email });
 
     if (existingTemporaryUser) {
-      const currentTime = new Date();
-      const otpExpiryTime = new Date(existingTemporaryUser.otpExpiry);
-
-      // 5. Check if OTP has expired
-      if (currentTime > otpExpiryTime) {
-        await TemporaryUser.deleteOne({ email }); // Delete expired temporary user
-      } else {
-        return res.status(400).json({
-          success: false,
-          statusCode: 400,
-          message: 'OTP is still valid. Please use the existing OTP.',
-        });
-      }
+      await TemporaryUser.deleteOne({ email });
     }
 
     // 6. Generate OTP and save temporary user
@@ -255,7 +243,7 @@ export const loginUsers = async (req, res) => {
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.userType }, 
       process.env.JWT_SECRET, 
-      { expiresIn: '5d' } 
+      { expiresIn: '1h' } 
     );
 
     return res.status(200).json({
