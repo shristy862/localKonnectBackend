@@ -42,19 +42,7 @@ export const signup = async (req, res) => {
     const existingTemporaryUser = await TemporaryUser.findOne({ email });
 
     if (existingTemporaryUser) {
-      const currentTime = new Date();
-      const otpExpiryTime = new Date(existingTemporaryUser.otpExpiry);
-
-      // 5. Check if OTP has expired
-      if (currentTime > otpExpiryTime) {
-        await TemporaryUser.deleteOne({ email }); // Delete expired temporary user
-      } else {
-        return res.status(400).json({
-          success: false,
-          statusCode: 400,
-          message: 'OTP is still valid. Please use the existing OTP.',
-        });
-      }
+      await TemporaryUser.deleteOne({ email });
     }
 
     // 6. Generate OTP and save temporary user
@@ -138,7 +126,7 @@ export const verifyOtp = async (req, res) => {
     return res.status(200).json({
       success: true,
       statusCode: 200,
-      message: 'OTP verified successfully. User is now marked as verified.',
+      message: 'OTP verified successfully.',
     });
   } catch (error) {
     console.error('Error in OTP verification:', error.message);
@@ -170,7 +158,7 @@ export const createPassword = async (req, res) => {
       return res.status(404).json({
         success: false,
         statusCode: 404,
-        message: 'Temporary user not found. Please verify your email first.',
+        message: ' user not found. Please verify your email first.',
       });
     }
 
@@ -204,7 +192,7 @@ export const createPassword = async (req, res) => {
     return res.status(201).json({
       success: true,
       statusCode: 201,
-      message: 'User created successfully and moved to the database.',
+      message: ' Otp sent  .',
     });
   } catch (error) {
     console.error('Error in createPassword:', error.message);
@@ -255,7 +243,7 @@ export const loginUsers = async (req, res) => {
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.userType }, 
       process.env.JWT_SECRET, 
-      { expiresIn: '5d' } 
+      { expiresIn: '1h' } 
     );
 
     return res.status(200).json({
