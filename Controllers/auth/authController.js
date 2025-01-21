@@ -204,7 +204,7 @@ export const createPassword = async (req, res) => {
     return res.status(201).json({
       success: true,
       statusCode: 201,
-      message: ' success  .',
+      message: ' success .',
     });
   } catch (error) {
     console.error('Error in createPassword:', error.message);
