@@ -4,6 +4,7 @@ import TemporaryUser from '../../models/auth/temporaryUserModal.js';
 import { ROLES } from '../../constants/role.js';
 import { generateOtp } from '../../utils/generateOTP.js';
 import { sendEmail } from '../../utils/emailservice.js';
+import Role from '../../models/roles/role.js';
 import jwt from 'jsonwebtoken';
 
 export const signup = async (req, res) => {
@@ -158,7 +159,7 @@ export const createPassword = async (req, res) => {
       return res.status(404).json({
         success: false,
         statusCode: 404,
-        message: ' user not found. Please verify your email first.',
+        message: 'User not found. Please verify your email first.',
       });
     }
 
@@ -172,27 +173,44 @@ export const createPassword = async (req, res) => {
       });
     }
 
-    // 4. Hash the password
+    // 4. Check if the role exists in the Role collection
+    const role = await Role.findOne({ title: temporaryUser.userType });
+    if (!role) {
+      return res.status(400).json({
+        success: false,
+        statusCode: 400,
+        message: 'Invalid role. Please select a valid role.',
+      });
+    }
+
+    // 5. Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 5. Create the new user
+    // 6. Create the new user with permissions
     const newUser = new User({
       email: temporaryUser.email,
       password: hashedPassword,
       rawPassword: password,
       userType: temporaryUser.userType,
       isVerified: true,
+      userPermissions: role.userPermissions,  // Assign permissions from role
     });
 
     await newUser.save();
 
-    // 6. Remove the temporary user entry
+    // 7. Remove the temporary user entry
     await TemporaryUser.deleteOne({ email });
 
     return res.status(201).json({
       success: true,
       statusCode: 201,
-      message: ' success  .',
+      message: 'User created successfully.',
+      user: {
+        id: newUser._id,
+        email: newUser.email,
+        userType: newUser.userType,
+        permissions: newUser.userPermissions,
+      },
     });
   } catch (error) {
     console.error('Error in createPassword:', error.message);
@@ -228,6 +246,7 @@ export const loginUsers = async (req, res) => {
       });
     }
 
+
     // 3. Verify the password
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
@@ -238,12 +257,22 @@ export const loginUsers = async (req, res) => {
         message: 'Invalid credentials. Please try again.',
       });
     }
+    // 4. Check if the user is blocked
+    if (user.status === 'blocked') {
+      return res.status(403).json({
+        success: false,
+        statusCode: 403,
+        message: 'You are blocked. You cannot log in.',
+      });
+    }
 
-    // 4. Generate JWT token
+    console.log("User Permissions Before Token Generation:", user.userPermissions);
+
+    // 5. Generate JWT token
     const token = jwt.sign(
-      { id: user._id, email: user.email, role: user.userType }, 
-      process.env.JWT_SECRET, 
-      { expiresIn: '1h' } 
+      { id: user._id, email: user.email, role: user.userType, userPermissions: user.userPermissions },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
     );
 
     return res.status(200).json({
@@ -255,6 +284,7 @@ export const loginUsers = async (req, res) => {
         id: user._id,
         email: user.email,
         userType: user.userType,
+        userPermissions: user.userPermissions,
       },
     });
   } catch (error) {
@@ -266,6 +296,7 @@ export const loginUsers = async (req, res) => {
     });
   }
 };
+
 
 export const logout = async (req, res) => {
   try {

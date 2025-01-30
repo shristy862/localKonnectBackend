@@ -3,6 +3,7 @@ import Service from '../../models/serviceProvider/serviceModal.js';
 
 // Controller for user dashboard
 export const userDashboard = async (req, res) => {
+  console.log(req.user)
   try {
     // Ensure the user is authenticated
     if (!req.user) {
@@ -35,6 +36,7 @@ export const userDashboard = async (req, res) => {
         email: user.email,
         userType: user.userType,
         profileStatus: user.profileStatus || 'Complete',
+        userPermissions: user.userPermissions,
       },
       services: services.map(service => ({
         serviceId: service._id,
@@ -50,7 +52,6 @@ export const userDashboard = async (req, res) => {
     return res.status(200).json({
       success: true,
       statusCode: 200,
-      message: dashboardData.message,
       dashboardData,
     });
   } catch (error) {
