@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema(
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     profile: { type: mongoose.Schema.Types.ObjectId, ref: 'Profile' },
     addedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    userPermissions: { type: [String], default: [] }, // Store user permissions
+    userPermissions: { type: [String], default: [] }, 
   },
   { timestamps: true }
 );

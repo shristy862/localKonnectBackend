@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const teamSchema = new mongoose.Schema(
   {
-    teamName: { type: String, required: true }, // Optional, you can add team name
+    teamName: { type: String, required: true }, 
     teamMembers: [
       {
         userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -10,12 +10,12 @@ const teamSchema = new mongoose.Schema(
         phone: { type: String, required: true },
         email: { type: String },
         userType: { type: String, required: true },
-        designation: { type: String }, // 'designation' from the db
+        designation: { type: String },
       }
     ],
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 },
-  { timestamps: true } // Optional: to track when the team is created/updated
+  { timestamps: true } 
 );
 
 export default mongoose.model('Team', teamSchema);

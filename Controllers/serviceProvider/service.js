@@ -2,7 +2,6 @@ import Service from '../../models/serviceProvider/serviceModal.js';
 
 // Get all services
 export const getServices = async (req, res) => {
-  console.log(`User ID from token: ${req.user.id}`); // Log the userId from the token
 
   try {
     const services = await Service.find({ userId: req.user.id });
@@ -20,7 +19,6 @@ export const getServices = async (req, res) => {
 
 // Get a single service by ID
 export const getServiceById = async (req, res) => {
-  console.log(`User ID from getbyId route: ${req.user.id}`); 
 
   try {
     const service = await Service.findOne({ _id: req.params.id, userId: req.user.id });
@@ -38,7 +36,6 @@ export const getServiceById = async (req, res) => {
 
 // Create a new service
 export const createService = async (req, res) => {
-  console.log(`User ID from token: ${req.user.id}`); // Log the userId from the token
 
   const { serviceName, description, visitCharge } = req.body;
 
@@ -64,7 +61,6 @@ export const createService = async (req, res) => {
 
 // Update a service by ID
 export const updateService = async (req, res) => {
-  console.log(`User ID from token: ${req.user.id}`); // Log the userId from the token
 
   const { serviceName, description, visitCharge } = req.body;
 
@@ -92,8 +88,7 @@ export const updateService = async (req, res) => {
 
 // Delete a service by ID
 export const deleteService = async (req, res) => {
-  console.log(`User ID from token: ${req.user.id}`); // Log the userId from the token
-
+  
   try {
     const deletedService = await Service.findOneAndDelete({ _id: req.params.id, userId: req.user.id });
 

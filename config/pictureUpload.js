@@ -18,10 +18,10 @@ const s3Client = new S3Client({
 console.log('S3 Bucket Name:', process.env.AWS_S3_BUCKET_NAME);
 
 // Set up multer storage engine with S3 using custom function
-const storage = multer.memoryStorage(); // Store file in memory for upload
+const storage = multer.memoryStorage(); 
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
+  limits: { fileSize: 5 * 1024 * 1024 }, 
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
@@ -35,14 +35,13 @@ const upload = multer({
 const uploadToS3 = async (file, fileName) => {
   const uploadParams = {
     Bucket: process.env.AWS_S3_BUCKET_NAME,
-    Key: `profile-pics/${Date.now().toString()}-${fileName}`, // Unique file name in S3
-    Body: file.buffer, // The file buffer
+    Key: `profile-pics/${Date.now().toString()}-${fileName}`, 
+    Body: file.buffer, 
     ContentType: file.mimetype, // Set content type
   };
 
   const command = new PutObjectCommand(uploadParams);
-  await s3Client.send(command); // Upload file to S3 using AWS SDK v3
-
+  await s3Client.send(command);
   // Return the S3 URL
   return `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${uploadParams.Key}`;
 };

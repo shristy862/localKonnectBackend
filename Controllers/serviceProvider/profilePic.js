@@ -21,9 +21,9 @@ export const uploadProfilePicture = async (req, res) => {
         });
       }
   
-      const { id } = req.user; // Extract user ID from token
-      const fileName = req.file.originalname; // Get the file name
-      const profilePicUrl = await uploadToS3(req.file, fileName); // Upload to S3 and get the file URL
+      const { id } = req.user; 
+      const fileName = req.file.originalname;
+      const profilePicUrl = await uploadToS3(req.file, fileName); 
   
       // Check if the uploaded URL already exists in the database
       const existingProfilePic = await ProfilePicture.findOne({ profilePhoto: profilePicUrl });
@@ -152,9 +152,9 @@ export const editProfilePicture = async (req, res) => {
       });
     }
 
-    const { id } = req.user; // Extract user ID from token
-    const fileName = req.file.originalname; // Get the file name
-    const newProfilePicUrl = await uploadToS3(req.file, fileName); // Upload new file to S3 and get the URL
+    const { id } = req.user; 
+    const fileName = req.file.originalname;
+    const newProfilePicUrl = await uploadToS3(req.file, fileName); 
 
     // Find the existing profile picture in the database
     const existingProfilePicture = await ProfilePicture.findOne({ userId: id });
@@ -203,7 +203,7 @@ export const editProfilePicture = async (req, res) => {
         });
       }
   
-      const { id } = req.user; // Extract user ID from token
+      const { id } = req.user; 
   
       // Validate that the ID is not empty or invalid
       if (!id) {

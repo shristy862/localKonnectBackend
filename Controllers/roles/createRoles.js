@@ -23,7 +23,7 @@ export const createRole = async (req, res) => {
             title,
             description,
             userPermissions,
-            createdBy: adminUser.id // Store admin ID
+            createdBy: adminUser.id 
         });
 
         await newRole.save();
@@ -114,8 +114,8 @@ export const deleteRole = async (req, res) => {
 
 export const blockUser = async (req, res) => {
     try {
-        const { userId } = req.params; // User to be blocked
-        const user = req.user; // Admin user (from token)
+        const { userId } = req.params; 
+        const user = req.user; 
 
         // Step 1: Check if the admin has 'block_users' permission
         if (!user.userPermissions.includes('block_users')) {
@@ -135,8 +135,8 @@ export const blockUser = async (req, res) => {
         }
 
         // Step 3: Update the status of the user to 'blocked'
-        userToBlock.status = 'blocked'; // Set status as 'blocked'
-        await userToBlock.save(); // Save the updated user document
+        userToBlock.status = 'blocked';
+        await userToBlock.save();
 
         // Step 4: Return a success response
         return res.status(200).json({
@@ -169,7 +169,7 @@ export const unblockUser = async (req, res) => {
             return res.status(404).json({ success: false, message: 'User not found.' });
         }
 
-         user.status = 'unblocked'; // Set status as 'blocked'
+         user.status = 'unblocked';
         await user.save();
 
         return res.status(200).json({ success: true, message: 'User unblocked successfully.' });
@@ -198,7 +198,6 @@ export const getAllUsers = async (req, res) => {
         }
 
         if (!req.user.userPermissions || !Array.isArray(req.user.userPermissions)) {
-            console.log("User Permissions Issue:", req.user.userPermissions); // Debugging line
             return res.status(403).json({
                 success: false,
                 message: "Unauthorized: Missing or invalid user permissions."
@@ -212,7 +211,7 @@ export const getAllUsers = async (req, res) => {
             });
         }
 
-        const users = await User.find().select('-password -rawPassword'); // Exclude sensitive fields
+        const users = await User.find().select('-password -rawPassword'); 
         return res.status(200).json({ success: true, users });
 
     } catch (error) {

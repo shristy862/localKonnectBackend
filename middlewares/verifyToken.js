@@ -17,7 +17,7 @@ export const authenticateToken = (req, res, next) => {
             id: decoded.id,
             email: decoded.email,
             role: decoded.role,
-            userPermissions: decoded.userPermissions || [] // Default to empty array if undefined
+            userPermissions: decoded.userPermissions || [] 
         }
         next();
     });

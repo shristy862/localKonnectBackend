@@ -2,8 +2,7 @@ import User from '../../models/auth/user.js';
 import Service from '../../models/serviceProvider/serviceModal.js'; 
 
 // Controller for user dashboard
-export const userDashboard = async (req, res) => {
-  console.log(req.user)
+export const dashboard = async (req, res) => {
   try {
     // Ensure the user is authenticated
     if (!req.user) {

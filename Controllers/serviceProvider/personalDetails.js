@@ -23,7 +23,7 @@ export const addPersonalDetails = async (req, res) => {
 
     // Create new personal details
     const newPersonalDetails = new PersonalDetails({
-      userId: id, // Use userId from the token
+      userId: id,
       name: req.body.name,
       address: {
         street: req.body.address.street,
@@ -31,7 +31,7 @@ export const addPersonalDetails = async (req, res) => {
         state: req.body.address.state,
         postalCode: req.body.address.postalCode,
       },
-      image: imageUrl ? { url: imageUrl } : null, // Save the S3 URL if an image was uploaded
+      image: imageUrl ? { url: imageUrl } : null,
     });
 
     // Save the new personal details to the database
@@ -95,7 +95,7 @@ export const getPersonalDetails = async (req, res) => {
       });
     }
 
-    const userId = req.user.id; // Extract userId from the token
+    const userId = req.user.id; 
 
     // Find the personal details for the user in the database
     const personalDetails = await PersonalDetails.findOne({ userId });
@@ -133,8 +133,8 @@ export const deletePersonalDetailsById = async (req, res) => {
       });
     }
 
-    const userId = req.user.id; // Extract userId from the token
-    const { id } = req.params; // Extract the personal details ID from the URL parameters
+    const userId = req.user.id; 
+    const { id } = req.params; 
 
     // Find the personal details by ID
     const personalDetails = await PersonalDetails.findById(id);

@@ -18,19 +18,19 @@ export const addEmployee = async (req, res) => {
     const rawPassword = `${firstName}${phone.slice(-2)}@localKonnect`;
 
     // Hash the password
-    const hashedPassword = await bcrypt.hash(rawPassword, 10); // 10 is the salt rounds
+    const hashedPassword = await bcrypt.hash(rawPassword, 10); 
 
     // Save employee to the User collection
     const newUser = new User({
       name,
       phone,
       email,
-      password: hashedPassword, // Store hashed password
-      rawPassword, // Store plain password temporarily
-      status: 'pending', // Set status to 'pending'
-      userType: 'ServiceProviderEmployee', // Assign role
-      serviceProvider: req.user.id, // Service provider ID
-      addedBy: req.user.id, // Added by user ID from token
+      password: hashedPassword, 
+      rawPassword, 
+      status: 'active', 
+      userType: 'ServiceProviderEmployee', 
+      serviceProvider: req.user.id, 
+      addedBy: req.user.id, 
     });
 
     await newUser.save();
