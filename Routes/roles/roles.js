@@ -1,7 +1,6 @@
 import express from 'express';
 import { authenticateToken } from '../../middlewares/verifyToken.js';
-import { createRole, getAllRoles, updateRole, deleteRole, blockUser, unblockUser, getAllUsers } from '../../Controllers/roles/roles.js';
-import {createTeam} from '../../Controllers/roles/createTeam.js'
+import { createRole, getAllRoles, updateRole, deleteRole, blockUser, unblockUser, getAllUsers } from '../../Controllers/roles/createRoles.js';
 
 const router = express.Router();
 
@@ -26,6 +25,4 @@ router.put('/:userId/unblock', authenticateToken, unblockUser);
 // Get all users (if role has view_users permission)
 router.get('/users', authenticateToken, getAllUsers);
 
-// create a team
-router.post('/create-team', authenticateToken ,createTeam);
 export default router;

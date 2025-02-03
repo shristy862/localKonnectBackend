@@ -1,10 +1,9 @@
 import User from '../../models/auth/user.js';
 import bcrypt from 'bcryptjs';
 import TemporaryUser from '../../models/auth/temporaryUserModal.js';
-import { ROLES } from '../../constants/role.js';
 import { generateOtp } from '../../utils/generateOTP.js';
 import { sendEmail } from '../../utils/emailservice.js';
-import Role from '../../models/roles/role.js';
+import Roles from '../../models/roles/role.js';
 import jwt from 'jsonwebtoken';
 
 export const signup = async (req, res) => {
@@ -19,16 +18,17 @@ export const signup = async (req, res) => {
     });
   }
 
-  // 2. Validate userType
-  if (!Object.values(ROLES).includes(userType)) {
-    return res.status(400).json({
-      success: false,
-      statusCode: 400,
-      message: 'Invalid user type',
-    });
-  }
-
   try {
+    // 2. Validate userType by checking existence in Roles collection
+    const role = await Roles.findOne({ title: userType });
+    if (!role) {
+      return res.status(400).json({
+        success: false,
+        statusCode: 400,
+        message: 'Invalid user type',
+      });
+    }
+
     // 3. Check if the email already exists in User collection
     const existingRegisteredUser = await User.findOne({ email });
     if (existingRegisteredUser) {
@@ -39,24 +39,28 @@ export const signup = async (req, res) => {
       });
     }
 
-    // 4. Check if email exists in TemporaryUser
-    const existingTemporaryUser = await TemporaryUser.findOne({ email });
+    // 4. Check if email exists in TemporaryUser collection
+    await TemporaryUser.deleteOne({ email }); 
 
-    if (existingTemporaryUser) {
-      await TemporaryUser.deleteOne({ email });
-    }
-
-    // 6. Generate OTP and save temporary user
+    // 5. Generate OTP and save temporary user
     const otp = generateOtp();
-    const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); 
 
-    const temporaryUser = await TemporaryUser.findOneAndUpdate(
-      { email },
-      { email, otp, otpExpiry, userType },
-      { upsert: true, new: true, runValidators: true }
-    );
+    // Ensure userPermissions is an array
+    const userPermissions = Array.isArray(role.userPermissions) ? role.userPermissions : [];
 
-    // 7. Send OTP via email
+    const temporaryUser = new TemporaryUser({
+      email,
+      otp,
+      otpExpiry,
+      userType,
+      userPermissions, 
+    });
+
+    // Save the temporary user with OTP and permissions
+    const savedTemporaryUser = await temporaryUser.save();
+
+    // 6. Send OTP via email
     const message = `Your OTP for signup is: ${otp}. It will expire in 5 minutes.`;
     await sendEmail(email, 'OTP for Signup', message);
 
@@ -154,7 +158,6 @@ export const createPassword = async (req, res) => {
   try {
     // 2. Check if the temporary user exists
     const temporaryUser = await TemporaryUser.findOne({ email });
-
     if (!temporaryUser) {
       return res.status(404).json({
         success: false,
@@ -173,32 +176,24 @@ export const createPassword = async (req, res) => {
       });
     }
 
-    // 4. Check if the role exists in the Role collection
-    const role = await Role.findOne({ title: temporaryUser.userType });
-    if (!role) {
-      return res.status(400).json({
-        success: false,
-        statusCode: 400,
-        message: 'Invalid role. Please select a valid role.',
-      });
-    }
-
-    // 5. Hash the password
+    // 4. Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 6. Create the new user with permissions
+    // 5. Create the new user
     const newUser = new User({
       email: temporaryUser.email,
       password: hashedPassword,
-      rawPassword: password,
+      rawPassword: password,  
       userType: temporaryUser.userType,
-      isVerified: true,
-      userPermissions: role.userPermissions,  // Assign permissions from role
+      userPermissions: temporaryUser.userPermissions, 
+      isVerified: true, 
+      status: 'active',  
     });
 
+    // Save the new user to the database
     await newUser.save();
 
-    // 7. Remove the temporary user entry
+    // 6. Remove the temporary user entry
     await TemporaryUser.deleteOne({ email });
 
     return res.status(201).json({
@@ -210,6 +205,7 @@ export const createPassword = async (req, res) => {
         email: newUser.email,
         userType: newUser.userType,
         permissions: newUser.userPermissions,
+        status: newUser.status,
       },
     });
   } catch (error) {
@@ -278,7 +274,7 @@ export const loginUsers = async (req, res) => {
     return res.status(200).json({
       success: true,
       statusCode: 200,
-      message: `Login successful! Welcome ${user.userType}.`,
+      message: `Login successfull! Welcome ${user.userType}.`,
       token,
       user: {
         id: user._id,

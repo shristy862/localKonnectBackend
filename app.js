@@ -10,7 +10,8 @@ import personalDetails from './Routes/serviceproviderProfile/personalDetailRoute
 import serviceRoutes from './Routes/serviceproviderProfile/serviceRoutes.js';
 import addEmployee from './Routes/serviceproviderProfile/addEmployeeRoutes.js';
 import paymentModeRoutes from './Routes/serviceproviderProfile/paymentModeRoutes.js';
-import roles from './Routes/roles/roles.js'
+import roles from './Routes/roles/roles.js';
+import team from './Routes/team/teamRoutes.js'
 const app = express();
 
 // Middleware
@@ -41,6 +42,8 @@ app.use('/serviceprovider' , addEmployee);
 app.use('/api/paymentmodes', paymentModeRoutes);
 
 app.use ('/api', roles);
+
+app.use('/api', team);
 
 // 404 Error Handler
 app.use((req, res, next) => {

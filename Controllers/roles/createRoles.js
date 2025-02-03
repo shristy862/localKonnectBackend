@@ -169,7 +169,7 @@ export const unblockUser = async (req, res) => {
             return res.status(404).json({ success: false, message: 'User not found.' });
         }
 
-        user.isBlocked = false;
+         user.status = 'unblocked'; // Set status as 'blocked'
         await user.save();
 
         return res.status(200).json({ success: true, message: 'User unblocked successfully.' });
